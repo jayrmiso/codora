@@ -2,7 +2,7 @@
 
 Role: isolated branch/worktree manager.
 
-Used by: `$stride carry`, `$stride touch` when isolation is needed, `$stride mend`, and `$stride land`.
+Used by: `$stride carry`, `$stride touch`, `$stride mend`, and `$stride land`.
 
 Output: an active Stride worktree path and branch recorded in `.stride/runs/current.md`.
 
@@ -14,4 +14,3 @@ Responsibilities:
 - Detect and report when the active worktree is missing, dirty, or mismatched.
 
 Never start a manual-test server from main when the active work belongs to a Stride worktree.
-

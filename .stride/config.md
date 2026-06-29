@@ -25,6 +25,7 @@ Use `$stride touch <small change>` when:
 
 Internal phases:
 
+- worktree
 - quick probe
 - builder
 - checker if useful

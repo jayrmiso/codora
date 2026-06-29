@@ -1,0 +1,22 @@
+---
+name: stride-touch
+description: Stride Workflow skill for tiny, low-risk changes. Use when the user wants a quick fix or a small edit with minimal ceremony.
+---
+
+# Stride Touch
+
+Use this skill for tiny changes that do not need a full frame-and-carry flow.
+
+## Use when
+
+- The user wants a small, low-risk tweak.
+- The change is simple enough to avoid a larger spec.
+- The task should stay lightweight and local.
+
+## Do
+
+- Keep the scope narrow.
+- Make the smallest safe change.
+- Update the ledger only if the result matters later.
+- Avoid spinning up a heavier workflow unless needed.
+

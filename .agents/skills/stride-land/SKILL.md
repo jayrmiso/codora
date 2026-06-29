@@ -17,7 +17,9 @@ Use this skill when work is ready to land after manual verification.
 
 - Use the default worker mode before landing so the reviewer worker sees the diff.
 - Announce the active Stride phase before doing it.
-- Run `stride-workflow worktree assert <active-worktree-path>` before committing or pushing.
+- Use the repo-local Stride runner printed by the active run/worktree status.
+- If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw `git worktree` commands.
+- Run the Stride runner's `worktree assert <active-worktree-path>` before committing or pushing.
 - Check the final diff.
 - Preserve any handoff notes.
 - Derive the commit subject from the frame and handoff, or use `stride-workflow subject` if available.

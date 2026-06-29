@@ -16,8 +16,10 @@ Use this skill when implementing approved work.
 ## Do
 
 - Use the reviewer worker as the default worker mode before editing.
-- Run `stride-workflow worktree create <task-slug>` before editing when no active Stride worktree exists.
-- Run `stride-workflow worktree assert` from the active worktree before editing.
+- Use the repo-local Stride runner: `node .stride/bin/stride-workflow.mjs`.
+- If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw `git worktree` commands.
+- Run the Stride runner's `worktree create <task-slug>` before editing when no active Stride worktree exists.
+- Run the Stride runner's `worktree assert <active-worktree-path>` before editing.
 - Never continue from `main` or `master`.
 - Announce the active Stride phase before doing it.
 - Treat missing worktree or missing reviewer worker as a workflow limitation that must be reported.

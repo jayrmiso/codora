@@ -18,9 +18,11 @@ workers(default) -> worktree -> load frame -> light probe -> builder -> checker 
 
 - Read `.stride/frames/current.md` before editing.
 - Choose the default worker mode before editing unless the task clearly needs balance or heavy mode.
-- Create or reuse the active Stride worktree before editing with `stride-workflow worktree create <task-slug>`.
+- Use the repo-local Stride runner: `node .stride/bin/stride-workflow.mjs`.
+- If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw `git worktree` commands.
+- Create or reuse the active Stride worktree before editing with `node .stride/bin/stride-workflow.mjs worktree create <task-slug>`.
 - Continue all repo reads, edits, checks, and preview commands from the printed active worktree path.
-- Run `stride-workflow worktree assert` from the active worktree before editing; stop if it fails.
+- Run the printed Stride runner's `worktree assert <active-worktree-path>` before editing; stop if it fails.
 - Never edit from `main` or `master`.
 - Announce each phase before starting it: `workers`, `worktree`, `probe`, `builder`, `checker`, `reviewer`, `handoff`.
 - Re-check relevant files inside the worktree before changing them.

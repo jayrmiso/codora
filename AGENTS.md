@@ -15,7 +15,9 @@ Before substantial work:
 - Route $stride commands through .stride/commands/.
 - Use .stride/phases/ for internal phase behavior.
 - Announce the active Stride phase before doing it.
-- Do not edit application files until `stride-workflow worktree assert` passes inside the active Stride worktree.
+- Use `node .stride/bin/stride-workflow.mjs ...` as the repo-local Stride runner.
+- If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw git worktree commands.
+- Do not edit application files until the Stride runner's `worktree assert` passes for the active Stride worktree.
 - Spawn or use the stride-reviewer worker during carry and land before handoff.
 - Use .stride/runs/current.md for the latest manual-test handoff when it exists.
 - Use .stride/ledger.md for durable project facts.

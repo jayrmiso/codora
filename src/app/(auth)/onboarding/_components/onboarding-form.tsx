@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 
 import { SearchableMultiSelect } from "@/components/searchable-multi-select";
+import { mergeLanguagePreferences } from "../_lib/merge-language-preferences.mjs";
 import type {
   LearningTagRow,
   ProgrammingLanguageRow,
@@ -200,10 +201,16 @@ export function OnboardingForm({
     setPending(true);
     setError(null);
 
-    const languagePreferences = selectedLanguages.map((language) => ({
-      language_id: language.id,
-      proficiency_level: languageDrafts[language.id] ?? proficiencyLevels[0].value,
-    }));
+    const languagePreferences = mergeLanguagePreferences({
+      existingPreferences: selectedLanguagePreferences,
+      selectedPreferences: selectedLanguages.map((language) => ({
+        languageId: language.id,
+        languageSlug: language.slug,
+        languageName: language.name,
+        proficiencyLevel: languageDrafts[language.id] ?? proficiencyLevels[0].value,
+      })),
+      editableLanguageSlug: "python",
+    });
 
     try {
       const response = await fetch("/api/onboarding/complete", {
@@ -262,12 +269,14 @@ export function OnboardingForm({
 
           <div className="mt-4">
             <SearchableMultiSelect
+              label="Python language picker"
               summary={selectedLanguageSummary}
               items={languagePickerItems}
               selectedIds={selectedLanguageIds}
               disabled={pending || availableLanguages.length === 0}
               emptyMessage="No matching languages found."
               searchPlaceholder="Search Python"
+              searchLabel="Search Python languages"
               onToggle={toggleLanguage}
             />
 
@@ -309,7 +318,7 @@ export function OnboardingForm({
                         type="button"
                         disabled={pending}
                         onClick={() => toggleLanguage(language.id)}
-                        aria-label={`Remove ${language.name}`}
+                      aria-label={`Remove ${language.name}`}
                       >
                         <X size={12} />
                       </button>
@@ -354,12 +363,14 @@ export function OnboardingForm({
 
           <div className="mt-4">
             <SearchableMultiSelect
+              label="Python tag picker"
               summary={selectedTagSummary}
               items={tagPickerItems}
               selectedIds={selectedTagIds}
               disabled={pending}
               emptyMessage="No matching tags found."
               searchPlaceholder={`Search ${topicLabel} tags`}
+              searchLabel={`Search ${topicLabel} tags`}
               onToggle={toggleTag}
             />
 

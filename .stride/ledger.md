@@ -7,6 +7,7 @@ This file records durable project knowledge discovered while using Stride.
 - Stride has been initialized for this project.
 - Onboarding uses a shared searchable multi-select dropdown component.
 - The onboarding language picker is Python-only, and learning tags display a Python badge.
+- Onboarding preserves existing non-Python language preferences when the Python-only UI submits updates.
 
 ## Decisions
 

@@ -34,9 +34,7 @@ export default async function OnboardingPage() {
           Finish your setup
         </h2>
         <p className="text-sm leading-6 text-white/45">
-          Choose the languages you want to learn and set a starting level for
-          each one. The pickers filter by search so this step stays compact and
-          still scales to more languages later.
+          Choose Python, then pick the tags you want to focus on.
         </p>
       </div>
 

@@ -5,6 +5,8 @@ This file records durable project knowledge discovered while using Stride.
 ## Current State
 
 - Stride has been initialized for this project.
+- Onboarding uses a shared searchable multi-select dropdown component.
+- The onboarding language picker is Python-only, and learning tags display a Python badge.
 
 ## Decisions
 

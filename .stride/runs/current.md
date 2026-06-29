@@ -1,3 +1,12 @@
+Status: Worktree ready
+Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-dropdown
+Active branch: stride/onboarding-dropdown
+Worker mode used: pending
+Reviewer worker result: pending
+Next command: continue the current Stride phase from the active worktree
+
+---
+
 # Current Run
 
 ## Active Worktree

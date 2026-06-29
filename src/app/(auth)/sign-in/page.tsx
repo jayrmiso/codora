@@ -7,13 +7,13 @@ export default function SignInPage() {
     <div className="space-y-6">
       <div className="space-y-2">
         <p className="text-xs uppercase tracking-[0.35em] text-white/35">
-          Access
+          Codora
         </p>
         <h2 className="text-3xl font-semibold tracking-tight text-white">
-          Sign in
+          Pick up where you left off
         </h2>
         <p className="text-sm leading-6 text-white/45">
-          Continue to the protected workspace.
+          Jump back into problems, attempts, and progress tracking.
         </p>
       </div>
 

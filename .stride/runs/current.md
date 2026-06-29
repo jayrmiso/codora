@@ -12,25 +12,27 @@
 
 ## What Changed
 
-- Added public auth pages at `/sign-in` and `/sign-up` using a shared dark themed route-group layout.
-- Protected `/` with `src/proxy.ts` so unauthenticated users are redirected to sign in.
-- Reworked the home page into a protected workspace shell with sign-out handling and session summary.
-- Added a shared `app/not-found.tsx` page with matching styling.
-- Updated `AGENTS.md` to ban inline `style` props.
-- Excluded `reference_js/**` from ESLint because it is reference material, not app code.
+- Added `/home` as the authenticated landing page and made `/` redirect there.
+- Fixed the auth loop by forwarding browser cookies to the session API from the home page.
+- Added a GitHub login provider entry that redirects through Supabase OAuth.
+- Updated the auth page copy so it describes Codora instead of auth plumbing.
+- Added a sign-in fragment bridge that consumes Supabase `#access_token=...` returns and persists them through `/api/auth/complete-oauth`.
+- Added repo-local product docs under `docs/` from the four source PDFs.
 
 ## What to Check
 
 - `/` redirects to `/sign-in` when no auth cookies are present.
-- `/sign-in` and `/sign-up` render the auth UI.
-- A missing route returns the 404 page instead of falling back to the home route.
-- The UI follows the reference theme: dark, high-contrast, bordered cards, and no inline styles.
+- `/home` renders the protected workspace when authenticated.
+- Sign-in with email/password lands on `/home` instead of looping back to `/`.
+- The GitHub button redirects to Supabase OAuth and the `/sign-in` fragment is consumed automatically.
+- The auth page copy mentions Codora and the product, not generic auth text.
+- The GitHub trigger no longer emits RSC fetch warnings.
 
 ## Checks Run
 
 - `npm run lint`
 - `npm run build`
-- `npm start` with curl checks for `/`, `/sign-in`, `/sign-up`, and `/does-not-exist`
+- `npm start` with curl checks for `/`, `/home`, `/sign-in`, and `/api/auth/github?next=/home`
 
 ## Next Command
 

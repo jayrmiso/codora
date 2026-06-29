@@ -25,24 +25,24 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             <div className="max-w-xl">
               <p className="mt-10 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-[11px] uppercase tracking-[0.32em] text-white/45">
                 <ShieldCheck size={12} />
-                Auth routes
+                Codora workspace
               </p>
               <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                Clean auth surfaces with a dark command-line feel.
+                Solve problems, track attempts, and measure progress.
               </h1>
               <p className="mt-5 max-w-lg text-sm leading-7 text-white/45">
-                Sign in, sign up, and protected routes share one visual system.
-                The layout follows the sample theme&apos;s sharp contrast, muted
-                chrome, and compact hierarchy.
+                Codora is a programming problem-solving app. Open a problem,
+                write code in the editor, submit it against tests, and review
+                your attempt history over time.
               </p>
             </div>
 
             <div className="mt-10 grid gap-3 text-sm text-white/45 sm:grid-cols-2">
               <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                `/` is protected by Proxy.
+                `/home` is the workspace entry point.
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                404s stay separate and readable.
+                The reviewer area stays read-only.
               </div>
             </div>
           </section>

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     default: "Codora",
     template: "%s · Codora",
   },
-  description: "Codora auth flows and protected workspace.",
+  description: "Codora workspace with auth, GitHub login, and a protected home page.",
 };
 
 export default function RootLayout({

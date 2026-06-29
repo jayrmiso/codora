@@ -7,13 +7,14 @@ export default function SignUpPage() {
     <div className="space-y-6">
       <div className="space-y-2">
         <p className="text-xs uppercase tracking-[0.35em] text-white/35">
-          Join
+          Codora
         </p>
         <h2 className="text-3xl font-semibold tracking-tight text-white">
-          Create an account
+          Start solving problems
         </h2>
         <p className="text-sm leading-6 text-white/45">
-          Set up access to the protected workspace.
+          Set up your profile, choose what you want to work on, and begin
+          building a visible attempt history.
         </p>
       </div>
 

@@ -38,12 +38,12 @@ export default function NotFound() {
               Go to sign in
               <ArrowUpRight size={14} />
             </Link>
-            <Link
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.06]"
-              href="/"
-            >
-              <ArrowLeft size={14} />
-              Back to workspace
+              <Link
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.06]"
+                href="/home"
+              >
+                <ArrowLeft size={14} />
+                Back to workspace
             </Link>
           </div>
         </div>

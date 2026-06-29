@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const AUTH_PATHS = new Set(["/sign-in", "/sign-up"]);
-const PROTECTED_PATHS = new Set(["/"]);
+const PROTECTED_PATHS = new Set(["/", "/home"]);
 
 export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -14,7 +14,7 @@ export function proxy(request: NextRequest) {
   }
 
   if (AUTH_PATHS.has(path) && isAuthenticated) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/home", request.url));
   }
 
   return NextResponse.next();

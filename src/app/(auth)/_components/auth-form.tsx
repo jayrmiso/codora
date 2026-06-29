@@ -3,7 +3,7 @@
 import { ArrowRight, LoaderCircle, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type AuthMode = "sign-in" | "sign-up";
 
@@ -26,6 +26,85 @@ export function AuthForm({ mode }: Props) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const hash = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : "";
+
+    if (!hash) {
+      return;
+    }
+
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get("access_token") ?? "";
+    const refreshToken = params.get("refresh_token") ?? "";
+    const expiresIn = Number(params.get("expires_in") ?? "0");
+    const tokenType = params.get("token_type") ?? "bearer";
+
+    if (!accessToken || !refreshToken) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function completeOauthSession() {
+      setPending(true);
+      setError(null);
+      setNotice("Completing GitHub sign in...");
+
+      try {
+        const response = await fetch("/api/auth/complete-oauth", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            expires_in: expiresIn,
+            token_type: tokenType,
+          }),
+        });
+
+        const result = (await response.json().catch(() => null)) as
+          | { ok: true }
+          | { ok: false; error?: string }
+          | null;
+
+        if (cancelled) {
+          return;
+        }
+
+        if (!response.ok || !result || !result.ok) {
+          setError(
+            result && !result.ok ? result.error ?? "GitHub sign in failed." : "GitHub sign in failed.",
+          );
+          setNotice(null);
+          setPending(false);
+          return;
+        }
+
+        window.location.replace("/home");
+      } catch {
+        if (!cancelled) {
+          setError("GitHub sign in failed.");
+          setNotice(null);
+          setPending(false);
+        }
+      }
+    }
+
+    void completeOauthSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -79,7 +158,7 @@ export function AuthForm({ mode }: Props) {
         return;
       }
 
-      router.replace("/");
+      router.replace("/home");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -88,89 +167,105 @@ export function AuthForm({ mode }: Props) {
   }
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
-      <div className="space-y-4">
-        {mode === "sign-up" ? (
+    <div className="space-y-5">
+      <a
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.06]"
+        href="/api/auth/github?next=/home"
+      >
+        <span className="text-base">GH</span>
+        Continue with GitHub
+      </a>
+
+      <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.28em] text-white/25">
+        <div className="h-px flex-1 bg-white/10" />
+        or
+        <div className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        <div className="space-y-4">
+          {mode === "sign-up" ? (
+            <label className="block space-y-2">
+              <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.28em] text-white/35">
+                <UserRound size={12} />
+                Full name
+              </span>
+              <input
+                className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/30 focus:bg-white/[0.06]"
+                disabled={pending}
+                name="name"
+                placeholder="Ari Stone"
+                type="text"
+                autoComplete="name"
+                required
+              />
+            </label>
+          ) : null}
+
           <label className="block space-y-2">
             <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.28em] text-white/35">
-              <UserRound size={12} />
-              Full name
+              <Mail size={12} />
+              Email
             </span>
             <input
               className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/30 focus:bg-white/[0.06]"
               disabled={pending}
-              name="name"
-              placeholder="Ari Stone"
-              type="text"
-              autoComplete="name"
+              name="email"
+              placeholder="you@example.com"
+              type="email"
+              autoComplete="email"
               required
             />
           </label>
-        ) : null}
 
-        <label className="block space-y-2">
-          <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.28em] text-white/35">
-            <Mail size={12} />
-            Email
-          </span>
-          <input
-            className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/30 focus:bg-white/[0.06]"
-            disabled={pending}
-            name="email"
-            placeholder="you@example.com"
-            type="email"
-            autoComplete="email"
-            required
-          />
-        </label>
+          <label className="block space-y-2">
+            <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.28em] text-white/35">
+              <LockKeyhole size={12} />
+              Password
+            </span>
+            <input
+              className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/30 focus:bg-white/[0.06]"
+              disabled={pending}
+              name="password"
+              placeholder="••••••••"
+              type="password"
+              autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
+              minLength={8}
+              required
+            />
+          </label>
+        </div>
 
-        <label className="block space-y-2">
-          <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.28em] text-white/35">
-            <LockKeyhole size={12} />
-            Password
-          </span>
-          <input
-            className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/30 focus:bg-white/[0.06]"
-            disabled={pending}
-            name="password"
-            placeholder="••••••••"
-            type="password"
-            autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
-            minLength={8}
-            required
-          />
-        </label>
-      </div>
-
-      {error ? (
+        {error ? (
         <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           {error}
         </p>
       ) : null}
 
-      {notice ? (
+        {notice ? (
         <p className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/70">
           {notice}
         </p>
       ) : null}
 
-      <button
-        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:bg-white/40"
-        disabled={pending}
-        type="submit"
-      >
-        {pending ? (
-          <>
-            <LoaderCircle size={16} className="animate-spin" />
-            Working
-          </>
-        ) : (
-          <>
-            {buttonLabelByMode[mode]}
-            <ArrowRight size={14} />
-          </>
-        )}
-      </button>
-    </form>
+        <button
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:bg-white/40"
+          disabled={pending}
+          type="submit"
+        >
+          {pending ? (
+            <>
+              <LoaderCircle size={16} className="animate-spin" />
+              Working
+            </>
+          ) : (
+            <>
+              {buttonLabelByMode[mode]}
+              <ArrowRight size={14} />
+            </>
+          )}
+        </button>
+      </form>
+    </div>
   );
 }

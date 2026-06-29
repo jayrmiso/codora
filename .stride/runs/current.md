@@ -8,7 +8,7 @@
 
 ## Status
 
-- In progress
+- Landed
 
 ## What Changed
 
@@ -32,4 +32,8 @@
 
 ## Next Command
 
-- Wire real Supabase env vars and manually test the auth routes against a live Supabase project.
+- None
+
+## PR
+
+- https://github.com/jayrmiso/codora/pull/1

@@ -7,6 +7,7 @@ This file records durable project knowledge discovered while using Stride.
 - Stride has been initialized for this project.
 - `framer-motion` and `lucide-react` were added to `package.json` and locked in `package-lock.json`.
 - Backend auth now uses Supabase Auth plus a Postgres-backed `public.profiles` table seeded by an `auth.users` trigger.
+- Backend auth branch `stride/backend-auth-api` was landed in PR `#1`.
 
 ## Decisions
 

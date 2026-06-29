@@ -15,6 +15,8 @@ Use this skill when work is ready to land after manual verification.
 
 ## Do
 
+- Use the default worker mode before landing so the reviewer worker sees the diff.
+- Announce the active Stride phase before doing it.
 - Check the final diff.
 - Preserve any handoff notes.
 - Derive the commit subject from the frame and handoff, or use `stride-workflow subject` if available.

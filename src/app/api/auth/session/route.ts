@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 import {
   isOnboardingComplete,
+  loadSupabaseProgrammingLanguages,
   loadSupabaseProfile,
+  loadSupabaseProfileLanguagePreferences,
   loadSupabaseProfileLearningTagIds,
   loadSupabaseUser,
   isSupabaseConfigured,
   refreshSupabaseSession,
   toSessionPayload,
+  type SelectedLanguagePreference,
 } from "@/infrastructure/supabase/auth";
 import { AUTH_COOKIE_NAMES, SUPABASE_CONFIG_ERROR } from "@/infrastructure/supabase/config";
 import { clearAuthCookies, setAuthCookies } from "@/infrastructure/supabase/cookies";
@@ -16,19 +19,45 @@ async function buildSessionState(accessToken: string, refreshToken: string) {
   const userResult = await loadSupabaseUser(accessToken);
 
   if (userResult.ok) {
-    const profileResult = await loadSupabaseProfile(accessToken, userResult.data.id);
-    const learningTagIdsResult = await loadSupabaseProfileLearningTagIds(
-      accessToken,
-      userResult.data.id,
-    );
+    const [profileResult, learningTagIdsResult, languagePreferencesResult, languagesResult] =
+      await Promise.all([
+        loadSupabaseProfile(accessToken, userResult.data.id),
+        loadSupabaseProfileLearningTagIds(accessToken, userResult.data.id),
+        loadSupabaseProfileLanguagePreferences(accessToken, userResult.data.id),
+        loadSupabaseProgrammingLanguages(),
+      ]);
+
     const learningTagIds = learningTagIdsResult.ok ? learningTagIdsResult.data : [];
+    const languagesById = new Map(
+      languagesResult.ok ? languagesResult.data.map((language) => [language.id, language]) : [],
+    );
+    const languagePreferences: SelectedLanguagePreference[] = languagePreferencesResult.ok
+      ? languagePreferencesResult.data
+          .map((preference) => {
+            const language = languagesById.get(preference.language_id);
+
+            if (!language) {
+              return null;
+            }
+
+            return {
+              languageId: language.id,
+              languageSlug: language.slug,
+              languageName: language.name,
+              proficiencyLevel: preference.proficiency_level,
+            };
+          })
+          .filter((preference): preference is SelectedLanguagePreference => Boolean(preference))
+      : [];
 
     return {
       user: userResult.data,
       profile: profileResult.ok ? profileResult.data : null,
+      languagePreferences,
       learningTagIds,
       onboardingComplete: isOnboardingComplete(
         profileResult.ok ? profileResult.data : null,
+        languagePreferences,
         learningTagIds,
       ),
       refreshedSession: null,
@@ -51,24 +80,47 @@ async function buildSessionState(accessToken: string, refreshToken: string) {
     return null;
   }
 
-  const refreshedProfile = await loadSupabaseProfile(
-    refreshed.data.access_token,
-    refreshedUser.data.id,
-  );
-  const refreshedLearningTagIdsResult = await loadSupabaseProfileLearningTagIds(
-    refreshed.data.access_token,
-    refreshedUser.data.id,
-  );
+  const [refreshedProfile, refreshedLearningTagIdsResult, refreshedLanguagePreferencesResult, languagesResult] =
+    await Promise.all([
+      loadSupabaseProfile(refreshed.data.access_token, refreshedUser.data.id),
+      loadSupabaseProfileLearningTagIds(refreshed.data.access_token, refreshedUser.data.id),
+      loadSupabaseProfileLanguagePreferences(refreshed.data.access_token, refreshedUser.data.id),
+      loadSupabaseProgrammingLanguages(),
+    ]);
   const refreshedLearningTagIds = refreshedLearningTagIdsResult.ok
     ? refreshedLearningTagIdsResult.data
     : [];
+  const languagesById = new Map(
+    languagesResult.ok ? languagesResult.data.map((language) => [language.id, language]) : [],
+  );
+  const refreshedLanguagePreferences: SelectedLanguagePreference[] =
+    refreshedLanguagePreferencesResult.ok
+      ? refreshedLanguagePreferencesResult.data
+          .map((preference) => {
+            const language = languagesById.get(preference.language_id);
+
+            if (!language) {
+              return null;
+            }
+
+            return {
+              languageId: language.id,
+              languageSlug: language.slug,
+              languageName: language.name,
+              proficiencyLevel: preference.proficiency_level,
+            };
+          })
+          .filter((preference): preference is SelectedLanguagePreference => Boolean(preference))
+      : [];
 
   return {
     user: refreshedUser.data,
     profile: refreshedProfile.ok ? refreshedProfile.data : null,
+    languagePreferences: refreshedLanguagePreferences,
     learningTagIds: refreshedLearningTagIds,
     onboardingComplete: isOnboardingComplete(
       refreshedProfile.ok ? refreshedProfile.data : null,
+      refreshedLanguagePreferences,
       refreshedLearningTagIds,
     ),
     refreshedSession: refreshed.data,
@@ -96,6 +148,7 @@ export async function GET(request: NextRequest) {
         authenticated: false,
         user: null,
         profile: null,
+        languagePreferences: [],
         learningTagIds: [],
         onboardingComplete: false,
         session: null,
@@ -110,12 +163,13 @@ export async function GET(request: NextRequest) {
       {
         ok: true,
         data: {
-          authenticated: false,
-          user: null,
-          profile: null,
-          learningTagIds: [],
-          onboardingComplete: false,
-          session: null,
+        authenticated: false,
+        user: null,
+        profile: null,
+        languagePreferences: [],
+        learningTagIds: [],
+        onboardingComplete: false,
+        session: null,
         },
       },
       { status: 200 },
@@ -131,6 +185,7 @@ export async function GET(request: NextRequest) {
       authenticated: true,
       user: sessionState.user,
       profile: sessionState.profile,
+      languagePreferences: sessionState.languagePreferences,
       learningTagIds: sessionState.learningTagIds,
       onboardingComplete: sessionState.onboardingComplete,
       session: sessionState.refreshedSession

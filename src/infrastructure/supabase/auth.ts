@@ -20,6 +20,31 @@ export type LearningTagRow = {
   updated_at: string;
 };
 
+export type ProgrammingLanguageRow = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProfileLanguagePreferenceRow = {
+  profile_id: string;
+  language_id: string;
+  proficiency_level: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SelectedLanguagePreference = {
+  languageId: string;
+  languageSlug: string;
+  languageName: string;
+  proficiencyLevel: string;
+};
+
 type CookieOptions = {
   httpOnly: true;
   sameSite: "lax";
@@ -62,6 +87,14 @@ function profileFromUnknown(value: unknown): ProfileRow | null {
     return null;
   }
 
+  if (
+    typeof profile.language_proficiency_levels !== "object" ||
+    profile.language_proficiency_levels === null ||
+    Array.isArray(profile.language_proficiency_levels)
+  ) {
+    profile.language_proficiency_levels = {};
+  }
+
   return profile;
 }
 
@@ -80,6 +113,42 @@ function learningTagFromUnknown(value: unknown): LearningTagRow | null {
   }
 
   return tag;
+}
+
+function programmingLanguageFromUnknown(value: unknown): ProgrammingLanguageRow | null {
+  const language = parseJson<ProgrammingLanguageRow>(value);
+
+  if (
+    !language ||
+    typeof language.id !== "string" ||
+    typeof language.slug !== "string" ||
+    typeof language.name !== "string" ||
+    typeof language.created_at !== "string" ||
+    typeof language.updated_at !== "string"
+  ) {
+    return null;
+  }
+
+  return language;
+}
+
+function profileLanguagePreferenceFromUnknown(
+  value: unknown,
+): ProfileLanguagePreferenceRow | null {
+  const preference = parseJson<ProfileLanguagePreferenceRow>(value);
+
+  if (
+    !preference ||
+    typeof preference.profile_id !== "string" ||
+    typeof preference.language_id !== "string" ||
+    typeof preference.proficiency_level !== "string" ||
+    typeof preference.created_at !== "string" ||
+    typeof preference.updated_at !== "string"
+  ) {
+    return null;
+  }
+
+  return preference;
 }
 
 async function supabaseRequest<T>(
@@ -258,6 +327,44 @@ export async function loadSupabaseLearningTags() {
   };
 }
 
+export async function loadSupabaseProgrammingLanguages() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return {
+      ok: false as const,
+      error: SUPABASE_CONFIG_ERROR,
+    };
+  }
+
+  const response = await fetch(
+    `${supabaseUrl("/rest/v1/programming_languages")}?select=*&order=sort_order.asc`,
+    {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    return {
+      ok: false as const,
+      error: "Failed to load programming languages.",
+    };
+  }
+
+  const rows = (await response.json().catch(() => [])) as unknown;
+  const languages = Array.isArray(rows)
+    ? rows
+        .map(programmingLanguageFromUnknown)
+        .filter((language): language is ProgrammingLanguageRow => Boolean(language))
+    : [];
+
+  return {
+    ok: true as const,
+    data: languages,
+  };
+}
+
 export async function loadSupabaseProfileLearningTagIds(
   accessToken: string,
   userId: string,
@@ -307,26 +414,81 @@ export async function loadSupabaseProfileLearningTagIds(
   };
 }
 
+export async function loadSupabaseProfileLanguagePreferences(
+  accessToken: string,
+  userId: string,
+) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return {
+      ok: false as const,
+      error: SUPABASE_CONFIG_ERROR,
+    };
+  }
+
+  const response = await fetch(
+    `${supabaseUrl("/rest/v1/profile_language_preferences")}?profile_id=eq.${encodeURIComponent(userId)}&select=*`,
+    {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    return {
+      ok: false as const,
+      error: "Failed to load language preferences.",
+    };
+  }
+
+  const rows = (await response.json().catch(() => [])) as unknown;
+  const preferences = Array.isArray(rows)
+    ? rows
+        .map(profileLanguagePreferenceFromUnknown)
+        .filter(
+          (preference): preference is ProfileLanguagePreferenceRow =>
+            Boolean(preference),
+        )
+    : [];
+
+  return {
+    ok: true as const,
+    data: preferences,
+  };
+}
+
 export function isOnboardingComplete(
   profile: ProfileRow | null,
+  languagePreferences: SelectedLanguagePreference[],
   learningTagIds: string[],
 ) {
-  return Boolean(profile?.proficiency_level && learningTagIds.length > 0);
+  return Boolean(profile && languagePreferences.length > 0 && learningTagIds.length > 0);
 }
 
 export async function updateSupabaseOnboarding(input: {
   accessToken: string;
   userId: string;
-  proficiencyLevel: string;
+  languagePreferences: SelectedLanguagePreference[];
   learningTagIds: string[];
 }) {
+  const languageProficiencyLevels = input.languagePreferences.reduce<Record<string, string>>(
+    (accumulator, preference) => {
+      accumulator[preference.languageSlug] = preference.proficiencyLevel;
+      return accumulator;
+    },
+    {},
+  );
+
   const profileUpdate = await supabaseRequest<null>(
     `/rest/v1/profiles?id=eq.${encodeURIComponent(input.userId)}`,
     {
       method: "PATCH",
       token: input.accessToken,
       body: JSON.stringify({
-        proficiency_level: input.proficiencyLevel,
+        proficiency_level: input.languagePreferences[0]?.proficiencyLevel ?? null,
+        language_proficiency_levels: languageProficiencyLevels,
       }),
     },
   );
@@ -345,6 +507,39 @@ export async function updateSupabaseOnboarding(input: {
 
   if (!deleteSelections.ok) {
     return deleteSelections;
+  }
+
+  const deletePreferences = await supabaseRequest<null>(
+    `/rest/v1/profile_language_preferences?profile_id=eq.${encodeURIComponent(input.userId)}`,
+    {
+      method: "DELETE",
+      token: input.accessToken,
+    },
+  );
+
+  if (!deletePreferences.ok) {
+    return deletePreferences;
+  }
+
+  if (input.languagePreferences.length > 0) {
+    const insertPreferences = await supabaseRequest<null>(
+      "/rest/v1/profile_language_preferences",
+      {
+        method: "POST",
+        token: input.accessToken,
+        body: JSON.stringify(
+          input.languagePreferences.map((preference) => ({
+            profile_id: input.userId,
+            language_id: preference.languageId,
+            proficiency_level: preference.proficiencyLevel,
+          })),
+        ),
+      },
+    );
+
+    if (!insertPreferences.ok) {
+      return insertPreferences;
+    }
   }
 
   if (input.learningTagIds.length === 0) {

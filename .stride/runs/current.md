@@ -20,6 +20,7 @@
 - Documented direct database env variables in `.env.example`.
 - Added an onboarding route, onboarding completion API, and shared session loader.
 - Updated `/home` to redirect incomplete users to onboarding and render a dashboard-style authenticated shell.
+- Expanded onboarding to collect multiple programming languages plus per-language proficiency, and added normalized `programming_languages` and `profile_language_preferences` tables.
 - Updated auth flows to route users to onboarding when their profile is not complete.
 - Added `/onboarding` to the proxy protection set.
 
@@ -28,6 +29,7 @@
 - `npm run lint`
 - `npm run build`
 - New migrations apply cleanly in Supabase before any CRUD or submission APIs are added.
+- Onboarding should continue to support future languages without changing the session contract again.
 - `profiles.proficiency_level` is populated when auth metadata includes it.
 
 ## Checks Run

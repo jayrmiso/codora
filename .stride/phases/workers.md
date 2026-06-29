@@ -18,5 +18,7 @@ Decision rule:
 - prefer `default` for small or low-risk changes
 - prefer `balance` for user-facing or multi-file work that needs a little more discovery
 - prefer `heavy` for large, risky, or cross-cutting work
+- default mode is not "no worker"; it means main thread builds and `stride-reviewer` reviews the diff
+- every carry and land handoff should say whether the reviewer worker ran
 
 Avoid parallel workers unless the task genuinely benefits from the extra token cost.

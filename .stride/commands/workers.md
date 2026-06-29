@@ -29,6 +29,9 @@ Modes:
 Rules:
 
 - Start with the smallest mode that can safely finish the work.
+- Carry and land should use default mode unless a stronger mode is justified.
+- Default mode requires the `stride-reviewer` worker for the scoped diff.
+- If the worker is unavailable, report that limitation in the handoff and run the same review locally.
 - Do not add more than the reviewer worker for tiny changes.
 - Escalate from `default` to `balance` or `heavy` only when the task justifies the token cost.
 - Record the chosen mode in the handoff when it matters to the next step.

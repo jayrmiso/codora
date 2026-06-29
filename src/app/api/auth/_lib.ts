@@ -64,3 +64,53 @@ export function normalizeStringArray(value: unknown) {
     .map((item) => (typeof item === "string" ? item.trim() : ""))
     .filter(Boolean);
 }
+
+export function normalizeLanguagePreferenceLevel(value: unknown) {
+  return normalizeProficiencyLevel(value);
+}
+
+export function normalizeLanguagePreferences(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const preferences = value
+    .map((item) => {
+      if (!item || typeof item !== "object") {
+        return null;
+      }
+
+      const languageId = typeof (item as { language_id?: unknown }).language_id === "string"
+        ? (item as { language_id: string }).language_id.trim()
+        : "";
+      const proficiencyLevel = normalizeLanguagePreferenceLevel(
+        (item as { proficiency_level?: unknown }).proficiency_level,
+      );
+
+      if (!languageId || !proficiencyLevel) {
+        return null;
+      }
+
+      return {
+        language_id: languageId,
+        proficiency_level: proficiencyLevel,
+      };
+    })
+    .filter(
+      (preference): preference is {
+        language_id: string;
+        proficiency_level: string;
+      } => Boolean(preference),
+    );
+
+  const seen = new Set<string>();
+
+  return preferences.filter((preference) => {
+    if (seen.has(preference.language_id)) {
+      return false;
+    }
+
+    seen.add(preference.language_id);
+    return true;
+  });
+}

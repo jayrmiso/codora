@@ -15,7 +15,10 @@ Use this skill when implementing approved work.
 
 ## Do
 
+- Use the reviewer worker as the default worker mode before editing.
+- Never continue from `main` if a worktree should be active.
+- Announce the active Stride phase before doing it.
+- Treat missing worktree or missing reviewer worker as a workflow limitation that must be reported.
 - Apply the agreed scope.
 - Keep changes aligned to the frame.
 - Preserve a clear path to manual testing.
-

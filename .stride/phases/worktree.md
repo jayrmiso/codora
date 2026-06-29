@@ -10,6 +10,8 @@ Responsibilities:
 
 - Create a branch named like `stride/<task-slug>`.
 - Create a worktree under `.stride/worktrees/<task-slug>`.
+- Before editing, verify the active checkout path and branch.
+- Stop and report a workflow error if still on `main` or `master`.
 - Run implementation and preview commands from that worktree, not from main.
 - Detect and report when the active worktree is missing, dirty, or mismatched.
 

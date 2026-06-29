@@ -3,17 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   isOnboardingComplete,
   loadSupabaseLearningTags,
+  loadSupabaseProgrammingLanguages,
   loadSupabaseProfile,
+  loadSupabaseProfileLanguagePreferences,
   loadSupabaseProfileLearningTagIds,
   loadSupabaseUser,
   refreshSupabaseSession,
   updateSupabaseOnboarding,
+  type SelectedLanguagePreference,
 } from "@/infrastructure/supabase/auth";
 import { AUTH_COOKIE_NAMES, SUPABASE_CONFIG_ERROR } from "@/infrastructure/supabase/config";
 import { setAuthCookies } from "@/infrastructure/supabase/cookies";
 import type { SupabaseSession } from "@/infrastructure/supabase/types";
 import {
-  normalizeProficiencyLevel,
+  normalizeLanguagePreferences,
   normalizeStringArray,
   readJsonBody,
 } from "../../auth/_lib";
@@ -61,12 +64,12 @@ async function resolveSession(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await readJsonBody(request);
-  const proficiencyLevel = normalizeProficiencyLevel(body.proficiency_level);
+  const languagePreferences = normalizeLanguagePreferences(body.language_preferences);
   const learningTagIds = [...new Set(normalizeStringArray(body.learning_tag_ids))];
 
-  if (!proficiencyLevel) {
+  if (languagePreferences.length === 0) {
     return NextResponse.json(
-      { ok: false, error: "Choose a proficiency level." },
+      { ok: false, error: "Choose at least one language and proficiency level." },
       { status: 400 },
     );
   }
@@ -87,12 +90,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const tagsResult = await loadSupabaseLearningTags();
+  const [tagsResult, languagesResult] = await Promise.all([
+    loadSupabaseLearningTags(),
+    loadSupabaseProgrammingLanguages(),
+  ]);
 
   if (!tagsResult.ok) {
     return NextResponse.json(
       { ok: false, error: tagsResult.error },
       { status: tagsResult.error === SUPABASE_CONFIG_ERROR ? 500 : 400 },
+    );
+  }
+
+  if (!languagesResult.ok) {
+    return NextResponse.json(
+      { ok: false, error: languagesResult.error },
+      { status: languagesResult.error === SUPABASE_CONFIG_ERROR ? 500 : 400 },
     );
   }
 
@@ -106,10 +119,33 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const allowedLanguagesById = new Map(
+    languagesResult.data.map((language) => [language.id, language]),
+  );
+  const normalizedLanguagePreferences: SelectedLanguagePreference[] = [];
+
+  for (const preference of languagePreferences) {
+    const language = allowedLanguagesById.get(preference.language_id);
+
+    if (!language) {
+      return NextResponse.json(
+        { ok: false, error: "One or more languages are invalid." },
+        { status: 400 },
+      );
+    }
+
+    normalizedLanguagePreferences.push({
+      languageId: language.id,
+      languageSlug: language.slug,
+      languageName: language.name,
+      proficiencyLevel: preference.proficiency_level,
+    });
+  }
+
   const updateResult = await updateSupabaseOnboarding({
     accessToken: session.accessToken,
     userId: session.userId,
-    proficiencyLevel,
+    languagePreferences: normalizedLanguagePreferences,
     learningTagIds,
   });
 
@@ -121,12 +157,38 @@ export async function POST(request: NextRequest) {
   }
 
   const profileResult = await loadSupabaseProfile(session.accessToken, session.userId);
+  const languagePreferencesResult = await loadSupabaseProfileLanguagePreferences(
+    session.accessToken,
+    session.userId,
+  );
   const tagIdsResult = await loadSupabaseProfileLearningTagIds(
     session.accessToken,
     session.userId,
   );
+  const languagePreferencesById = new Map(
+    languagesResult.data.map((language) => [language.id, language]),
+  );
+  const selectedLanguagePreferences = languagePreferencesResult.ok
+    ? languagePreferencesResult.data
+        .map((preference) => {
+          const language = languagePreferencesById.get(preference.language_id);
+
+          if (!language) {
+            return null;
+          }
+
+          return {
+            languageId: language.id,
+            languageSlug: language.slug,
+            languageName: language.name,
+            proficiencyLevel: preference.proficiency_level,
+          };
+        })
+        .filter((preference): preference is SelectedLanguagePreference => Boolean(preference))
+    : [];
   const onboardingComplete = isOnboardingComplete(
     profileResult.ok ? profileResult.data : null,
+    selectedLanguagePreferences,
     tagIdsResult.ok ? tagIdsResult.data : [],
   );
 

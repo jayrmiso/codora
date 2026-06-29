@@ -27,6 +27,7 @@ export type ProfileRow = {
   full_name: string | null;
   avatar_url: string | null;
   proficiency_level: string | null;
+  language_proficiency_levels: Record<string, string>;
   created_at: string;
   updated_at: string;
 };

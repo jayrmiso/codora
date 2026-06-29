@@ -14,10 +14,12 @@ Before substantial work:
 - Read .stride/config.md.
 - Route $stride commands through .stride/commands/.
 - Use .stride/phases/ for internal phase behavior.
+- Announce the active Stride phase before doing it.
+- Do not edit application files until the Stride worktree phase is complete.
+- Spawn or use the stride-reviewer worker during carry and land before handoff.
 - Use .stride/runs/current.md for the latest manual-test handoff when it exists.
 - Use .stride/ledger.md for durable project facts.
 - Update the ledger when a discovery should survive future turns.
-- Do not use inline `style` props in application code; prefer utility classes, CSS, or shared components.
 
 Primary loop: $stride frame -> approval -> $stride carry -> manual test -> $stride land.
 Tiny changes can use $stride touch.

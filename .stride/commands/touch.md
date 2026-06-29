@@ -21,4 +21,6 @@ Rules:
 - Do not write a full frame unless the change turns out to be broader than expected.
 - Keep the edit local.
 - Always create or reuse a Stride worktree, even for tiny changes.
+- Announce each phase before starting it: `worktree`, `probe`, `builder`, `checker`, `previewer`, `handoff`.
+- Stop and report a workflow error instead of editing from `main` or `master`.
 - If the change is visual, start the preview from the edited checkout and write `.stride/runs/current.md`.

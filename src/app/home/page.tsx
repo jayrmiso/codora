@@ -27,7 +27,15 @@ export default async function HomePage() {
 
   const displayName =
     session.profile?.full_name ?? session.user?.email ?? "Authenticated user";
-  const proficiencyLevel = session.profile?.proficiency_level ?? "Not set";
+  const languageSummary =
+    session.languagePreferences.length > 0
+      ? session.languagePreferences
+          .map((language) => `${language.languageName} · ${language.proficiencyLevel}`)
+          .slice(0, 3)
+          .join(" | ")
+      : session.profile?.language_proficiency_levels.python ??
+        session.profile?.proficiency_level ??
+        "Not set";
   const email = session.user?.email ?? "Session active";
 
   return (
@@ -35,7 +43,7 @@ export default async function HomePage() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.04),transparent_28%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.55)_1px,transparent_1px)] bg-[size:64px_64px] opacity-[0.04]" />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-6 py-10 lg:px-8">
+      <div className="relative flex min-h-screen w-full flex-col gap-6 px-4 py-8 sm:px-6 lg:px-10">
         <header className="flex items-center justify-between rounded-3xl border border-white/10 bg-white/[0.03] px-5 py-4 shadow-2xl shadow-black/30 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-black">
@@ -77,9 +85,9 @@ export default async function HomePage() {
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <p className="text-xs uppercase tracking-[0.3em] text-white/30">
-                  Level
+                  Learning languages
                 </p>
-                <p className="mt-3 text-lg font-medium text-white">{proficiencyLevel}</p>
+                <p className="mt-3 text-lg font-medium text-white">{languageSummary}</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <p className="text-xs uppercase tracking-[0.3em] text-white/30">

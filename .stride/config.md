@@ -9,9 +9,11 @@ Primary commands: `$stride frame`, `$stride carry`, and `$stride land`
 - Start by framing the user's goal in one or two sentences.
 - Inspect the repo before deciding implementation details.
 - Use the smallest internal phase depth that can safely complete the task.
-- Prefer direct implementation over delegating to extra roles.
+- Keep the main thread as the builder, but use the default reviewer worker for carry and land.
+- Announce each active phase before doing it so the user can see the flow.
+- Do not edit application files until the worktree phase confirms a non-main checkout.
 - Escalate to planning only when product direction, architecture, or sequencing is genuinely unclear.
-- Escalate to review when the change affects contracts, data, auth, payments, persistence, deployment, or public behavior.
+- Escalate beyond the default reviewer only when the change affects contracts, data, auth, payments, persistence, deployment, or broad public behavior.
 - Escalate to debug when there is a concrete failure to reproduce.
 - End carry work with a ledger update: changed files, checks run, current status, and next action.
 
@@ -52,6 +54,7 @@ Use `$stride carry` when:
 
 Internal phases:
 
+- workers
 - worktree
 - load frame
 - light probe
@@ -73,6 +76,7 @@ Use `$stride land` when:
 
 Internal phases:
 
+- workers
 - verify active run
 - check status and scope
 - commit if needed

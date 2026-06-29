@@ -1,14 +1,32 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { ShieldCheck, Sparkles } from "lucide-react";
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
+function OnboardingShell({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.09),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.05),transparent_28%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.55)_1px,transparent_1px)] bg-[size:64px_64px] opacity-[0.05]" />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-6xl items-center px-6 py-10 lg:px-8">
-        <div className="grid w-full gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[1120px] items-center px-4 py-8 sm:px-6 lg:px-10">
+        <div className="w-full rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8 lg:p-10">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AuthShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.09),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.05),transparent_28%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.55)_1px,transparent_1px)] bg-[size:64px_64px] opacity-[0.05]" />
+
+      <div className="relative flex min-h-screen w-full items-center px-4 py-8 sm:px-6 lg:px-10">
+        <div className="grid w-full gap-6 2xl:grid-cols-[1.1fr_0.9fr]">
           <section className="flex min-h-[220px] flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.03] p-8 shadow-2xl shadow-black/40 backdrop-blur-xl lg:p-12">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-black">
@@ -56,4 +74,14 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </div>
     </div>
   );
+}
+
+export default function AuthLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/onboarding")) {
+    return <OnboardingShell>{children}</OnboardingShell>;
+  }
+
+  return <AuthShell>{children}</AuthShell>;
 }

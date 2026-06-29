@@ -11,7 +11,14 @@ export type SessionState =
         full_name: string | null;
         avatar_url: string | null;
         proficiency_level: string | null;
+        language_proficiency_levels: Record<string, string>;
       } | null;
+      languagePreferences: Array<{
+        languageId: string;
+        languageSlug: string;
+        languageName: string;
+        proficiencyLevel: string;
+      }>;
       learningTagIds: string[];
       onboardingComplete: boolean;
       session: {
@@ -27,12 +34,13 @@ export type SessionState =
       };
     }
   | {
-      authenticated: false;
-      user: null;
-      profile: null;
-      learningTagIds: [];
-      onboardingComplete: false;
-      session: null;
+    authenticated: false;
+    user: null;
+    profile: null;
+    languagePreferences: [];
+    learningTagIds: [];
+    onboardingComplete: false;
+    session: null;
     };
 
 type SessionResponse =

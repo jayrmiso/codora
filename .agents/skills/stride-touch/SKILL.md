@@ -18,5 +18,7 @@ Use this skill for tiny changes that do not need a full frame-and-carry flow.
 - Keep the scope narrow.
 - Make the smallest safe change.
 - Use a worktree even when the change is tiny.
+- Announce each Stride phase before doing it.
+- Stop and report a workflow error instead of editing from `main` or `master`.
 - Update the ledger only if the result matters later.
 - Avoid spinning up a heavier workflow unless needed.

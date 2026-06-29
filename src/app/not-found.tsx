@@ -13,7 +13,7 @@ export default function NotFound() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.04),transparent_28%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.55)_1px,transparent_1px)] bg-[size:64px_64px] opacity-[0.04]" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-3xl items-center px-6 py-10">
+      <div className="relative flex min-h-screen w-full items-center px-4 py-8 sm:px-6 lg:px-10">
         <div className="w-full rounded-[2rem] border border-white/10 bg-white/[0.03] p-8 text-center shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-10">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-white/70">
             <ScanSearch size={20} />

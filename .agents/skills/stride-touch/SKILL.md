@@ -17,7 +17,8 @@ Use this skill for tiny changes that do not need a full frame-and-carry flow.
 
 - Keep the scope narrow.
 - Make the smallest safe change.
-- Use a worktree even when the change is tiny.
+- Run `stride-workflow worktree create <task-slug>` even when the change is tiny.
+- Run `stride-workflow worktree assert` from the active worktree before editing.
 - Announce each Stride phase before doing it.
 - Stop and report a workflow error instead of editing from `main` or `master`.
 - Update the ledger only if the result matters later.

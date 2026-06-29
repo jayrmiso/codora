@@ -15,7 +15,7 @@ Before substantial work:
 - Route $stride commands through .stride/commands/.
 - Use .stride/phases/ for internal phase behavior.
 - Announce the active Stride phase before doing it.
-- Do not edit application files until the Stride worktree phase is complete.
+- Do not edit application files until `stride-workflow worktree assert` passes inside the active Stride worktree.
 - Spawn or use the stride-reviewer worker during carry and land before handoff.
 - Use .stride/runs/current.md for the latest manual-test handoff when it exists.
 - Use .stride/ledger.md for durable project facts.

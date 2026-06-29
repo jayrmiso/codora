@@ -11,7 +11,7 @@ Primary commands: `$stride frame`, `$stride carry`, and `$stride land`
 - Use the smallest internal phase depth that can safely complete the task.
 - Keep the main thread as the builder, but use the default reviewer worker for carry and land.
 - Announce each active phase before doing it so the user can see the flow.
-- Do not edit application files until the worktree phase confirms a non-main checkout.
+- Do not edit application files until `stride-workflow worktree assert` passes inside the active Stride worktree.
 - Escalate to planning only when product direction, architecture, or sequencing is genuinely unclear.
 - Escalate beyond the default reviewer only when the change affects contracts, data, auth, payments, persistence, deployment, or broad public behavior.
 - Escalate to debug when there is a concrete failure to reproduce.

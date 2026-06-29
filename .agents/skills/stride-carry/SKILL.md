@@ -16,7 +16,9 @@ Use this skill when implementing approved work.
 ## Do
 
 - Use the reviewer worker as the default worker mode before editing.
-- Never continue from `main` if a worktree should be active.
+- Run `stride-workflow worktree create <task-slug>` before editing when no active Stride worktree exists.
+- Run `stride-workflow worktree assert` from the active worktree before editing.
+- Never continue from `main` or `master`.
 - Announce the active Stride phase before doing it.
 - Treat missing worktree or missing reviewer worker as a workflow limitation that must be reported.
 - Apply the agreed scope.

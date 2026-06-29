@@ -23,14 +23,32 @@ Before reviewing:
 3. Review only the scoped diff and directly relevant files.
 
 Review passes:
-1. Scope and frame fit
-2. Correctness and regressions
-3. Tests and verification evidence
-4. User-facing/manual-test risks
-5. Local conventions and maintainability
+1. Scope And Frame Fit
+   - Check that the diff implements the approved frame or requested touch without scope creep.
+2. Correctness And Regressions
+   - Check broken states, wrong data flow, missing awaits, lifecycle issues, and obvious edge failures.
+3. Test Fidelity
+   - Check that meaningful verification exists for changed behavior, or that an exemption is stated for docs/config-only work.
+4. Boundary And Safety
+   - Check auth, data persistence, external APIs, secrets, destructive actions, migrations, and public contracts when touched.
+5. User-Facing Manual Risks
+   - Check visual, copy, flow, and preview risks the user should manually inspect.
+6. Local Convention And Simplicity
+   - Check that the diff fits local patterns and avoids unnecessary abstraction.
+
+Severity:
+- [blocking]: missing core task, correctness regression, unsafe boundary change, missing required verification for changed behavior, or editing/committing from main/master.
+- [minor]: readability, naming, optional coverage, small maintainability issue, or non-blocking manual-test note.
 
 Output exactly:
 Verdict: approve | approve with minor fixes | request changes
+Review Passes:
+- Scope And Frame Fit: <No findings | findings>
+- Correctness And Regressions: <No findings | findings>
+- Test Fidelity: <No findings | findings>
+- Boundary And Safety: <No findings | findings>
+- User-Facing Manual Risks: <No findings | findings>
+- Local Convention And Simplicity: <No findings | findings>
 Findings:
 - [blocking] <issue> -- <file:line when available> -- <why>
 - [minor] <issue> -- <file:line when available> -- <why>
@@ -39,5 +57,5 @@ Checks considered:
 Manual-test notes:
 - <what the user should pay attention to, or None>
 
-Use `Findings: none` when there are no findings.
+Use `Findings: none` when there are no findings. Verdict must be `request changes` when any `[blocking]` finding exists.
 """

@@ -1,8 +1,10 @@
 "use client";
 
-import { Check, ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+
+import { getSearchableMultiSelectState } from "./searchable-multi-select.mjs";
 
 export type SearchableMultiSelectItem = {
   id: string;
@@ -77,25 +79,13 @@ export function SearchableMultiSelect({
     };
   }, [open]);
 
-  const filteredItems = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-      return items;
-    }
-
-    return items.filter((item) => {
-      const haystack = [
-        item.label,
-        item.description ?? "",
-        item.badge ?? "",
-      ]
-        .join(" ")
-        .toLowerCase();
-
-      return haystack.includes(normalizedQuery);
-    });
-  }, [items, query]);
+  const { filteredItems, emptyStateMessage } = useMemo<{
+    filteredItems: SearchableMultiSelectItem[];
+    emptyStateMessage: string;
+  }>(
+    () => getSearchableMultiSelectState({ items, query, selectedIds, emptyMessage }),
+    [emptyMessage, items, query, selectedIds],
+  );
 
   return (
     <div ref={rootRef} className="relative">
@@ -145,22 +135,15 @@ export function SearchableMultiSelect({
             <div className="grid gap-2 sm:grid-cols-2">
               {filteredItems.length > 0 ? (
                 filteredItems.map((item) => {
-                  const active = selectedIds.has(item.id);
-
                   return (
                     <button
                       key={item.id}
-                    className={[
-                      "flex items-start gap-3 rounded-2xl border px-3 py-3 text-left transition",
-                        active
-                          ? "border-white/30 bg-white/[0.08]"
-                          : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]",
-                      ].join(" ")}
+                      className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.05]"
                       type="button"
                       disabled={disabled}
                       onClick={() => onToggle(item.id)}
                       role="option"
-                      aria-selected={active}
+                      aria-selected={false}
                     >
                       <span className="mt-0.5 shrink-0">{item.leading}</span>
 
@@ -180,15 +163,13 @@ export function SearchableMultiSelect({
                         </span>
                       </span>
 
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-white/15">
-                        {active ? <Check size={12} className="text-white" /> : null}
-                      </span>
+                      <span className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
                     </button>
                   );
                 })
               ) : (
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-4 text-sm text-white/45 sm:col-span-2">
-                  {emptyMessage}
+                  {emptyStateMessage}
                 </div>
               )}
             </div>

@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 
 import { SearchableMultiSelect } from "@/components/searchable-multi-select";
 import { mergeLanguagePreferences } from "../_lib/merge-language-preferences.mjs";
+import { summarizeSelectionNames } from "../_lib/selection-summary.mjs";
 import type {
   LearningTagRow,
   ProgrammingLanguageRow,
@@ -36,7 +37,7 @@ type Props = {
   errorMessage: string | null;
 };
 
-function PythonIcon({ className = "" }: { className?: string }) {
+function LanguageIcon({ label, className = "" }: { label: string; className?: string }) {
   return (
     <span
       className={[
@@ -44,7 +45,7 @@ function PythonIcon({ className = "" }: { className?: string }) {
         className,
       ].join(" ")}
     >
-      Py
+      {label.slice(0, 2).toUpperCase()}
     </span>
   );
 }
@@ -68,20 +69,12 @@ export function OnboardingForm({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguageIds, setSelectedLanguageIds] = useState<Set<string>>(
-    () => new Set(
-      selectedLanguagePreferences
-        .filter((item) =>
-          programmingLanguages.some((language) => language.id === item.languageId && language.slug === "python"),
-        )
-        .map((item) => item.languageId),
-    ),
+    () => new Set(selectedLanguagePreferences.map((item) => item.languageId)),
   );
   const [languageDrafts, setLanguageDrafts] = useState<Record<string, string>>(
     () =>
       selectedLanguagePreferences.reduce<Record<string, string>>((accumulator, item) => {
-        const available = programmingLanguages.find(
-          (language) => language.id === item.languageId && language.slug === "python",
-        );
+        const available = programmingLanguages.find((language) => language.id === item.languageId);
 
         if (!available) {
           return accumulator;
@@ -96,7 +89,7 @@ export function OnboardingForm({
   );
 
   const availableLanguages = useMemo(
-    () => programmingLanguages.filter((language) => language.slug === "python"),
+    () => programmingLanguages,
     [programmingLanguages],
   );
 
@@ -161,18 +154,19 @@ export function OnboardingForm({
         label: language.name,
         description:
           language.description ?? "Use this as your starting point for onboarding.",
-        badge: "Python",
-        leading: <PythonIcon />,
+        badge: language.slug,
+        leading: <LanguageIcon label={language.name} />,
       })),
     [availableLanguages],
   );
 
-  const selectedLanguageSummary =
-    selectedLanguages.length > 0
-      ? selectedLanguages.map((language) => language.name).join(", ")
-      : "Select Python";
+  const selectedLanguageSummary = useMemo(
+    () => summarizeSelectionNames(selectedLanguages.map((language) => language.name), "Select languages", 2),
+    [selectedLanguages],
+  );
 
-  const topicLabel = selectedLanguages[0]?.name ?? "Python";
+  const topicLabel =
+    selectedLanguages[0]?.name ?? "selected languages";
 
   const tagPickerItems = useMemo(
     () =>
@@ -186,10 +180,10 @@ export function OnboardingForm({
     [learningTags, topicLabel],
   );
 
-  const selectedTagSummary =
-    selectedTags.length > 0
-      ? selectedTags.map((tag) => tag.name).slice(0, 3).join(", ")
-      : `Select ${topicLabel} tags`;
+  const selectedTagSummary = useMemo(
+    () => summarizeSelectionNames(selectedTags.map((tag) => tag.name), "Select tags", 3),
+    [selectedTags],
+  );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -209,7 +203,7 @@ export function OnboardingForm({
         languageName: language.name,
         proficiencyLevel: languageDrafts[language.id] ?? proficiencyLevels[0].value,
       })),
-      editableLanguageSlug: "python",
+      editableLanguageIds: availableLanguages.map((language) => language.id),
     });
 
     try {
@@ -262,44 +256,49 @@ export function OnboardingForm({
               <p className="text-xs uppercase tracking-[0.28em] text-white/35">
                 Languages
               </p>
-              <h3 className="mt-2 text-base font-medium text-white">Python</h3>
+              <h3 className="mt-2 text-base font-medium text-white">Programming languages</h3>
             </div>
             <p className="text-sm text-white/45">{selectedLanguages.length} selected</p>
           </div>
 
           <div className="mt-4">
             <SearchableMultiSelect
-              label="Python language picker"
+              label="Language picker"
               summary={selectedLanguageSummary}
               items={languagePickerItems}
               selectedIds={selectedLanguageIds}
               disabled={pending || availableLanguages.length === 0}
               emptyMessage="No matching languages found."
-              searchPlaceholder="Search Python"
-              searchLabel="Search Python languages"
+              searchPlaceholder="Search languages"
+              searchLabel="Search languages"
               onToggle={toggleLanguage}
             />
 
             {selectedLanguages.length > 0 ? (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {selectedLanguages.map((language) => (
-                  <button
-                    key={language.id}
-                    className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/80 transition hover:border-white/20 hover:bg-white/[0.06]"
-                    type="button"
-                    disabled={pending}
-                    onClick={() => toggleLanguage(language.id)}
-                  >
-                    <PythonIcon className="h-5 w-5 rounded-full text-[8px] tracking-[0.12em]" />
-                    {language.name}
-                    <X size={12} />
-                  </button>
-                ))}
+              <div className="mt-3 max-h-28 overflow-y-auto pr-1">
+                <div className="flex flex-wrap gap-2">
+                  {selectedLanguages.map((language) => (
+                    <button
+                      key={language.id}
+                      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/80 transition hover:border-white/20 hover:bg-white/[0.06]"
+                      type="button"
+                      disabled={pending}
+                      onClick={() => toggleLanguage(language.id)}
+                    >
+                      <LanguageIcon
+                        label={language.name}
+                        className="h-5 w-5 rounded-full text-[8px] tracking-[0.12em]"
+                      />
+                      {language.name}
+                      <X size={12} />
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : null}
 
             {selectedLanguages.length > 0 ? (
-              <div className="mt-4 space-y-3">
+              <div className="mt-4 grid gap-3 lg:grid-cols-2">
                 {selectedLanguages.map((language) => (
                   <div
                     key={language.id}
@@ -318,7 +317,7 @@ export function OnboardingForm({
                         type="button"
                         disabled={pending}
                         onClick={() => toggleLanguage(language.id)}
-                      aria-label={`Remove ${language.name}`}
+                        aria-label={`Remove ${language.name}`}
                       >
                         <X size={12} />
                       </button>
@@ -363,34 +362,36 @@ export function OnboardingForm({
 
           <div className="mt-4">
             <SearchableMultiSelect
-              label="Python tag picker"
+              label="Tag picker"
               summary={selectedTagSummary}
               items={tagPickerItems}
               selectedIds={selectedTagIds}
               disabled={pending}
               emptyMessage="No matching tags found."
-              searchPlaceholder={`Search ${topicLabel} tags`}
-              searchLabel={`Search ${topicLabel} tags`}
+              searchPlaceholder="Search tags"
+              searchLabel="Search tags"
               onToggle={toggleTag}
             />
 
             {selectedTags.length > 0 ? (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {selectedTags.map((tag) => (
-                  <button
-                    key={tag.id}
-                    className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/80 transition hover:border-white/20 hover:bg-white/[0.06]"
-                    type="button"
-                    disabled={pending}
-                    onClick={() => toggleTag(tag.id)}
-                  >
-                    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.22em] text-white/60">
-                      {topicLabel}
-                    </span>
-                    {tag.name}
-                    <X size={12} />
-                  </button>
-                ))}
+              <div className="mt-3 max-h-28 overflow-y-auto pr-1">
+                <div className="flex flex-wrap gap-2">
+                  {selectedTags.map((tag) => (
+                    <button
+                      key={tag.id}
+                      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/80 transition hover:border-white/20 hover:bg-white/[0.06]"
+                      type="button"
+                      disabled={pending}
+                      onClick={() => toggleTag(tag.id)}
+                    >
+                      <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.22em] text-white/60">
+                        {topicLabel}
+                      </span>
+                      {tag.name}
+                      <X size={12} />
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : null}
           </div>

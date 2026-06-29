@@ -34,7 +34,7 @@ export default async function OnboardingPage() {
           Finish your setup
         </h2>
         <p className="text-sm leading-6 text-white/45">
-          Choose Python, then pick the tags you want to focus on.
+          Choose your languages, then pick the tags you want to focus on.
         </p>
       </div>
 

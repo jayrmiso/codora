@@ -1,10 +1,11 @@
 export function mergeLanguagePreferences({
   existingPreferences,
   selectedPreferences,
-  editableLanguageSlug,
+  editableLanguageIds,
 }) {
+  const editableLanguageIdSet = new Set(editableLanguageIds);
   const preservedPreferences = existingPreferences.filter(
-    (preference) => preference.languageSlug !== editableLanguageSlug,
+    (preference) => !editableLanguageIdSet.has(preference.languageId),
   );
 
   return [...preservedPreferences, ...selectedPreferences];

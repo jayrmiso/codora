@@ -5,6 +5,7 @@ This file records durable project knowledge discovered while using Stride.
 ## Current State
 
 - Stride has been initialized for this project.
+- `framer-motion` and `lucide-react` were added to `package.json` and locked in `package-lock.json`.
 
 ## Decisions
 
@@ -12,8 +13,6 @@ This file records durable project knowledge discovered while using Stride.
 - Token use should be value-aware, not merely minimized.
 - Core lifecycle is `$stride touch` for tiny changes or `$stride frame` -> `$stride carry` -> manual test -> `$stride land` for larger work.
 - Frontend systemization uses `$stride kit ui`.
-- Clean architecture folders for this repo now include `src/app`, `src/components`, `src/shared`, `src/features`, `src/domain`, `src/infrastructure`, and `src/config`.
-- The public GitHub repo for this project is `https://github.com/jayrmiso/codora`.
 
 ## Open Questions
 

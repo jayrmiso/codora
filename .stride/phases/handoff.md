@@ -11,6 +11,7 @@ The handoff card must include:
 - status: `Ready for manual test`, `Needs code fix`, `Blocked`, or `Ready to land`
 - active worktree path
 - active branch
+- suggested commit subject, derived from the frame/run context
 - preview URL when available
 - what changed
 - what the user should check manually

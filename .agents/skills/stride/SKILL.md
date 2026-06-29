@@ -1,17 +1,17 @@
 ---
 name: stride
-description: Repo-local Stride Workflow skill for Codex. Use for $stride touch, frame, carry, land, kit, review, mend, and status inside projects that have .stride files installed.
+description: Repo-local Stride Workflow skill for Codex. Use when the user wants the umbrella Stride skill for repo-local workflow context.
 ---
 
 # Stride Workflow
 
-Use this skill when working in a repository that has Stride Workflow installed.
+Use this skill when working in a repository that has Stride Workflow installed and you want the umbrella Stride context.
 
 ## When to use
 
-- The user asks for `\$stride touch`, `\$stride frame`, `\$stride carry`, `\$stride land`, `\$stride kit`, `\$stride review`, `\$stride mend`, or `\$stride status`.
-- The user wants to follow the Stride workflow inside a repo.
+- The user wants the general Stride workflow context.
 - The task should use `.stride/` command docs and phases.
+- A more specific `stride-*` skill is not the better fit.
 
 ## What to do
 

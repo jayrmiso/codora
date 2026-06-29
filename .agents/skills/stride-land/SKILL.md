@@ -17,5 +17,6 @@ Use this skill when work is ready to land after manual verification.
 
 - Check the final diff.
 - Preserve any handoff notes.
+- Derive the commit subject from the frame and handoff, or use `stride-workflow subject` if available.
+- Use a conventional commit subject that matches the approved frame.
 - Land only what was actually verified.
-

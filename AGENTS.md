@@ -17,6 +17,7 @@ Before substantial work:
 - Use .stride/runs/current.md for the latest manual-test handoff when it exists.
 - Use .stride/ledger.md for durable project facts.
 - Update the ledger when a discovery should survive future turns.
+- Do not use inline `style` props in application code; prefer utility classes, CSS, or shared components.
 
 Primary loop: $stride frame -> approval -> $stride carry -> manual test -> $stride land.
 Tiny changes can use $stride touch.

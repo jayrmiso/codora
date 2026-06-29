@@ -17,6 +17,9 @@ This file records durable project knowledge discovered while using Stride.
 - The UI theme direction is anchored on `reference_js/6.js` and `reference_js/template.css`: dark black surfaces, subtle grid/orb atmosphere, thin borders, muted foreground text, and rounded premium panels.
 - Backend work should come before frontend auth/UI work when auth-dependent screens are involved.
 - Planned auth stack: Supabase Auth for identity and Supabase Postgres for application user tables.
+- Auth routes live under `src/app/(auth)/...`, the protected workspace is `/`, and route protection is handled in `src/proxy.ts` using cookie checks.
+- `reference_js` is reference-only material and should be excluded from ESLint.
+- Application code should not use inline `style` props; use classes or CSS instead.
 
 ## Open Questions
 

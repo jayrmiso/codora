@@ -13,8 +13,8 @@ export default function SignUpPage() {
           Start solving problems
         </h2>
         <p className="text-sm leading-6 text-white/45">
-          Set up your profile, choose what you want to work on, and begin
-          building a visible attempt history.
+          Set up your profile, choose what you want to work on, and finish
+          onboarding before you start building a visible attempt history.
         </p>
       </div>
 

@@ -53,18 +53,20 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, email, full_name, avatar_url)
+  insert into public.profiles (id, email, full_name, avatar_url, proficiency_level)
   values (
     new.id,
     new.email,
     coalesce(new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'name'),
-    new.raw_user_meta_data ->> 'avatar_url'
+    new.raw_user_meta_data ->> 'avatar_url',
+    coalesce(new.raw_user_meta_data ->> 'proficiency_level', new.raw_user_meta_data ->> 'level')
   )
   on conflict (id) do update
   set
     email = excluded.email,
     full_name = coalesce(excluded.full_name, public.profiles.full_name),
     avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url),
+    proficiency_level = coalesce(excluded.proficiency_level, public.profiles.proficiency_level),
     updated_at = now();
 
   return new;
@@ -76,4 +78,3 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row
 execute function public.handle_new_auth_user();
-

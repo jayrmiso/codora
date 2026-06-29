@@ -1,66 +1,33 @@
-import { ArrowUpRight, BadgeCheck, Clock3, Sparkles } from "lucide-react";
-import { headers } from "next/headers";
-import Link from "next/link";
+import {
+  ArrowUpRight,
+  BadgeCheck,
+  BookOpen,
+  Clock3,
+  Sparkles,
+  Target,
+  Trophy,
+} from "lucide-react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+
+import { loadSessionState } from "@/app/_lib/load-session";
 
 import { SignOutButton } from "../_components/sign-out-button";
 
-type SessionResponse =
-  | {
-      ok: true;
-      data: {
-        authenticated: boolean;
-        user: {
-          id: string;
-          email?: string | null;
-        } | null;
-        profile: {
-          full_name: string | null;
-          avatar_url: string | null;
-        } | null;
-      };
-    }
-  | {
-      ok: false;
-      error: string;
-    };
-
-async function loadSession() {
-  const headerList = await headers();
-  const host = headerList.get("host");
-  const cookie = headerList.get("cookie") ?? "";
-
-  if (!host) {
-    return null;
-  }
-
-  const protocol = headerList.get("x-forwarded-proto") ?? "http";
-
-  try {
-    const response = await fetch(`${protocol}://${host}/api/auth/session`, {
-      cache: "no-store",
-      headers: cookie ? { cookie } : undefined,
-    });
-    const payload = (await response.json().catch(() => null)) as SessionResponse | null;
-
-    if (!response.ok || !payload || !payload.ok) {
-      return null;
-    }
-
-    return payload.data;
-  } catch {
-    return null;
-  }
-}
-
 export default async function HomePage() {
-  const session = await loadSession();
+  const session = await loadSessionState();
+
   if (!session || !session.authenticated) {
     redirect("/sign-in");
   }
 
+  if (!session.onboardingComplete) {
+    redirect("/onboarding");
+  }
+
   const displayName =
     session.profile?.full_name ?? session.user?.email ?? "Authenticated user";
+  const proficiencyLevel = session.profile?.proficiency_level ?? "Not set";
   const email = session.user?.email ?? "Session active";
 
   return (
@@ -89,15 +56,16 @@ export default async function HomePage() {
           <section className="rounded-[2rem] border border-white/10 bg-[#0a0a0a]/95 p-8 shadow-2xl shadow-black/40 backdrop-blur-xl lg:p-10">
             <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] uppercase tracking-[0.32em] text-white/45">
               <BadgeCheck size={12} />
-              Session active
+              Onboarding complete
             </p>
 
             <h1 className="mt-6 max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
               Welcome back, {displayName}.
             </h1>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-white/45">
-              This is your default home page. Authenticated users land here at
-              `/home`, while `/` just redirects through to this route.
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">
+              You&apos;re signed in and ready for the next problem. This landing
+              page is the first stop before the problem library, progress, and
+              reviewer surfaces are built out.
             </p>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -109,15 +77,55 @@ export default async function HomePage() {
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <p className="text-xs uppercase tracking-[0.3em] text-white/30">
+                  Level
+                </p>
+                <p className="mt-3 text-lg font-medium text-white">{proficiencyLevel}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-white/30">
                   Email
                 </p>
                 <p className="mt-3 break-words text-sm text-white/70">{email}</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/30">
-                  Route
-                </p>
-                <p className="mt-3 text-lg font-medium text-white">/home</p>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-white/30">
+                      <Target size={12} />
+                      Next step
+                    </p>
+                    <h2 className="mt-3 text-xl font-medium text-white">
+                      Browse problems
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-white/45">
+                      Open the future problem catalog and pick a difficulty that
+                      matches your current level.
+                    </p>
+                  </div>
+                  <ArrowUpRight className="text-white/30" size={16} />
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-white/30">
+                      <Trophy size={12} />
+                      Track progress
+                    </p>
+                    <h2 className="mt-3 text-xl font-medium text-white">
+                      See growth over time
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-white/45">
+                      The progress view will come from attempt history and
+                      completion data once the solving flow exists.
+                    </p>
+                  </div>
+                  <ArrowUpRight className="text-white/30" size={16} />
+                </div>
               </div>
             </div>
           </section>
@@ -128,11 +136,11 @@ export default async function HomePage() {
                 Session
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">
-                Cookie-backed auth
+                Workspace summary
               </h2>
               <p className="mt-3 text-sm leading-7 text-white/45">
-                The session API still powers the request-time state check, but it
-                now receives the browser cookies so login no longer loops.
+                This page keeps the authenticated shell lightweight until the
+                problem session, history, and analytics pages land.
               </p>
             </div>
 
@@ -146,24 +154,25 @@ export default async function HomePage() {
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/30">
-                  Identity
+                <p className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-white/30">
+                  <BookOpen size={12} />
+                  Coming next
                 </p>
                 <p className="mt-3 text-sm text-white/70">
-                  {session.profile?.full_name ?? session.user?.email ?? "Unknown"}
+                  Problem library, solve session, and read-only reviewer pages
                 </p>
               </div>
             </div>
 
             <div className="mt-auto rounded-2xl border border-white/10 bg-black/30 p-4">
               <p className="text-sm text-white/50">
-                Need to inspect a route that does not exist yet?
+                Need to leave the workspace?
               </p>
               <Link
                 className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-white transition hover:text-white/70"
                 href="/sign-in"
               >
-                Open sign in
+                Return to sign in
                 <ArrowUpRight size={14} />
               </Link>
             </div>

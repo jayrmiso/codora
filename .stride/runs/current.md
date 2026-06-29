@@ -8,32 +8,35 @@
 
 ## Status
 
-- Landed
+- Applied to remote Supabase project and implemented Milestone 1 auth/onboarding/app shell
 
 ## What Changed
 
-- Added `/home` as the authenticated landing page and made `/` redirect there.
-- Fixed the auth loop by forwarding browser cookies to the session API from the home page.
-- Added a GitHub login provider entry that redirects through Supabase OAuth.
-- Updated the auth page copy so it describes Codora instead of auth plumbing.
-- Added a sign-in fragment bridge that consumes Supabase `#access_token=...` returns and persists them through `/api/auth/complete-oauth`.
-- Added repo-local product docs under `docs/` from the four source PDFs.
+- Added a direct database connection config helper under `src/infrastructure/database/config.ts`.
+- Extended the auth profile trigger to persist `proficiency_level` from auth metadata.
+- Added a core schema migration for topics, difficulty levels, learning tags, profile tag selections, problems, problem tags, hidden test cases, attempts, and reviewer articles.
+- Added a taxonomy seed migration for starter topics, difficulty levels, and learning tags.
+- Updated the Supabase profile type and signup helper to carry `proficiency_level`.
+- Documented direct database env variables in `.env.example`.
+- Added an onboarding route, onboarding completion API, and shared session loader.
+- Updated `/home` to redirect incomplete users to onboarding and render a dashboard-style authenticated shell.
+- Updated auth flows to route users to onboarding when their profile is not complete.
+- Added `/onboarding` to the proxy protection set.
 
 ## What to Check
 
-- `/` redirects to `/sign-in` when no auth cookies are present.
-- `/home` renders the protected workspace when authenticated.
-- Sign-in with email/password lands on `/home` instead of looping back to `/`.
-- The GitHub button redirects to Supabase OAuth and the `/sign-in` fragment is consumed automatically.
-- The auth page copy mentions Codora and the product, not generic auth text.
-- The GitHub trigger no longer emits RSC fetch warnings.
+- `npm run lint`
+- `npm run build`
+- New migrations apply cleanly in Supabase before any CRUD or submission APIs are added.
+- `profiles.proficiency_level` is populated when auth metadata includes it.
 
 ## Checks Run
 
 - `npm run lint`
 - `npm run build`
-- `npm start` with curl checks for `/`, `/home`, `/sign-in`, and `/api/auth/github?next=/home`
+- Applied migrations directly to the Supabase database and verified the core `public` tables exist.
+- Verified the new onboarding route is included in the built route map.
 
 ## Next Command
 
-- None
+- Begin problem library and problem session framing/carry work on top of the completed auth/onboarding shell.

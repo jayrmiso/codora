@@ -89,7 +89,26 @@ export function AuthForm({ mode }: Props) {
           return;
         }
 
-        window.location.replace("/home");
+        const sessionResponse = await fetch("/api/auth/session", {
+          cache: "no-store",
+        });
+        const sessionResult = (await sessionResponse.json().catch(() => null)) as
+          | {
+              ok: true;
+              data?: { authenticated?: boolean; onboardingComplete?: boolean };
+            }
+          | { ok: false; error?: string }
+          | null;
+
+        const onboardingComplete =
+          sessionResponse.ok &&
+          sessionResult &&
+          "ok" in sessionResult &&
+          sessionResult.ok &&
+          sessionResult.data?.authenticated &&
+          sessionResult.data.onboardingComplete;
+
+        window.location.replace(onboardingComplete ? "/home" : "/onboarding");
       } catch {
         if (!cancelled) {
           setError("GitHub sign in failed.");
@@ -104,7 +123,7 @@ export function AuthForm({ mode }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -158,7 +177,26 @@ export function AuthForm({ mode }: Props) {
         return;
       }
 
-      router.replace("/home");
+      const sessionResponse = await fetch("/api/auth/session", {
+        cache: "no-store",
+      });
+      const sessionResult = (await sessionResponse.json().catch(() => null)) as
+        | {
+            ok: true;
+            data?: { authenticated?: boolean; onboardingComplete?: boolean };
+          }
+        | { ok: false; error?: string }
+        | null;
+
+      const onboardingComplete =
+        sessionResponse.ok &&
+        sessionResult &&
+        "ok" in sessionResult &&
+        sessionResult.ok &&
+        sessionResult.data?.authenticated &&
+        sessionResult.data.onboardingComplete;
+
+      router.replace(onboardingComplete ? "/home" : "/onboarding");
       router.refresh();
     } catch {
       setError("Network error. Try again.");

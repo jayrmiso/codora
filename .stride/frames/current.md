@@ -1,50 +1,89 @@
-# Frame: Auth Pages and Route Protection
+# Frame: Milestone 1 Auth, Onboarding, and App Shell
 
 ## Goal
 
-Create public sign-in and sign-up pages, protect the home route for authenticated users, and add a shared 404 page that fits the repo's dark reference theme.
+Implement the first product milestone so a signed-in user can complete profile onboarding, land on a useful authenticated home page, and remain protected by the existing auth gate.
+
+## Main Mechanic
+
+The mechanic is a short post-auth setup flow that captures `proficiency_level` and learning tags, then routes the user into `/home`, where the app presents the authenticated shell and a dashboard-oriented starting point.
 
 ## Repo Facts
 
 - The app uses the Next.js App Router under `src/app`.
-- Auth APIs already exist under `src/app/api/auth/*` and manage Supabase cookies.
-- The protected workspace lives at `/`.
-- Route groups are available, so auth-only pages can live under `src/app/(auth)/...` without changing their URLs.
-- `src/proxy.ts` is the Next 16 request gate for auth redirects.
-- `reference_js` is sample UI material only and should not be treated as linted app code.
+- Auth pages already exist at `/sign-in` and `/sign-up`.
+- Authentication is handled with Supabase session cookies and route protection in `src/proxy.ts`.
+- `/` currently redirects to `/home`.
+- `/home` currently loads the session server-side and renders a protected workspace shell.
+- Auth signup already sends `full_name`, and the database now supports `profiles.proficiency_level` plus `profile_learning_tags`.
+- The remote Supabase schema already has the onboarding-related tables and taxonomy seed data.
+- `docs/milestones.md` defines this milestone as auth, onboarding, and app shell.
 
-## Affected Areas
+## Scope
 
-- `src/app/(auth)/layout.tsx`
-- `src/app/(auth)/_components/auth-form.tsx`
-- `src/app/(auth)/sign-in/page.tsx`
+Build the user-facing pieces needed to complete the first milestone:
+
+- sign-up can capture or hand off onboarding state
+- onboarding collects `proficiency_level`
+- onboarding collects learning tag selections
+- onboarding data persists to the existing Supabase profile tables
+- `/home` becomes the polished authenticated landing page
+- route protection keeps unauthenticated users out of protected pages and authenticated users out of auth screens
+
+## Likely Affected Areas
+
 - `src/app/(auth)/sign-up/page.tsx`
-- `src/app/page.tsx`
-- `src/app/not-found.tsx`
-- `src/app/_components/sign-out-button.tsx`
+- `src/app/(auth)/_components/auth-form.tsx`
+- `src/app/(auth)/layout.tsx`
+- a new onboarding route under `src/app/(auth)/onboarding/`
+- `src/app/home/page.tsx`
+- `src/app/_components/home-page.tsx`
+- `src/app/api/auth/sign-up/route.ts`
+- `src/app/api/auth/session/route.ts`
+- `src/app/api/auth/_lib.ts`
+- `src/infrastructure/supabase/auth.ts`
+- `src/infrastructure/supabase/types.ts`
 - `src/proxy.ts`
-- `src/app/layout.tsx`
 - `src/app/globals.css`
-- `AGENTS.md`
-- `eslint.config.mjs`
 
-## Implementation Notes
+## Implementation Steps
 
-- Keep the auth UI class-based with no inline `style` props.
-- Use the cookie-backed auth APIs that already exist for sign-in, sign-up, and sign-out.
-- Redirect unauthenticated users away from `/` and authenticated users away from `/sign-in` and `/sign-up`.
-- Render the protected home screen with a dark, high-contrast shell that matches the reference theme.
-- Use `app/not-found.tsx` for the shared 404 experience.
+1. Decide the onboarding handoff:
+   - after sign-up, route the user to onboarding instead of dropping them directly into `/home`
+   - if the user already has a complete profile, let them proceed to `/home`
+2. Add a dedicated onboarding page or route group that captures:
+   - `proficiency_level`
+   - learning tag selections
+3. Persist onboarding choices through the existing Supabase-backed profile tables.
+4. Update auth/session loading so the app can tell whether onboarding is complete.
+5. Update `/home` so it becomes the polished authenticated landing page rather than a placeholder session check.
+6. Keep the auth pages visually aligned with the existing dark shell and avoid inline styles.
+7. Preserve route protection in `src/proxy.ts` so unauthenticated users still go to `/sign-in` and authenticated users stay out of auth routes.
 
 ## Acceptance Checks
 
-- Visiting `/` without cookies redirects to `/sign-in`.
-- Visiting `/sign-in` and `/sign-up` renders the auth pages.
-- Visiting an unknown route renders the 404 page with the app shell styling.
+- A new user can sign up, complete onboarding, and reach `/home`.
+- A returning user with a complete profile goes straight to `/home`.
+- A returning user without onboarding is redirected into the onboarding flow.
+- Learning tag selections persist to `profile_learning_tags`.
+- `proficiency_level` persists to `profiles`.
+- `/sign-in` and `/sign-up` still work with existing auth behavior.
+- `/home` remains protected and renders a real authenticated shell.
 - `npm run lint` passes.
 - `npm run build` passes.
 
 ## Risks
 
-- Proxy-based auth is optimistic and only checks cookies; the session API still needs to remain the source of truth.
-- The reference sample folder must stay ignored by lint to avoid false failures.
+- Onboarding state can become ambiguous if we do not define a clear completion check.
+- The sign-up flow may need a redirect change if we choose onboarding after account creation.
+- The profile/session API may need a small expansion to expose onboarding completeness.
+- A polished `/home` can grow into a dashboard feature too early if we do not keep the first pass focused.
+
+## Non-Goals
+
+- Problem library pages
+- Problem session/editor implementation
+- Submission runtime and grading
+- Progress and leaderboard analytics
+- Reviewer library pages
+

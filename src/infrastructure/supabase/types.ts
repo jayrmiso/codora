@@ -26,6 +26,7 @@ export type ProfileRow = {
   email: string | null;
   full_name: string | null;
   avatar_url: string | null;
+  proficiency_level: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -41,4 +42,3 @@ export type AuthResponse<T> =
       error: string;
       details?: unknown;
     };
-

@@ -10,6 +10,16 @@ import type {
   SupabaseSession,
 } from "./types";
 
+export type LearningTagRow = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
 type CookieOptions = {
   httpOnly: true;
   sameSite: "lax";
@@ -53,6 +63,23 @@ function profileFromUnknown(value: unknown): ProfileRow | null {
   }
 
   return profile;
+}
+
+function learningTagFromUnknown(value: unknown): LearningTagRow | null {
+  const tag = parseJson<LearningTagRow>(value);
+
+  if (
+    !tag ||
+    typeof tag.id !== "string" ||
+    typeof tag.slug !== "string" ||
+    typeof tag.name !== "string" ||
+    typeof tag.created_at !== "string" ||
+    typeof tag.updated_at !== "string"
+  ) {
+    return null;
+  }
+
+  return tag;
 }
 
 async function supabaseRequest<T>(
@@ -109,6 +136,7 @@ export async function signUpWithSupabase(input: {
   email: string;
   password: string;
   name?: string;
+  proficiencyLevel?: string;
 }) {
   return supabaseRequest<SupabaseSession | { user: SupabaseAuthUser }>(
     "/auth/v1/signup",
@@ -118,7 +146,12 @@ export async function signUpWithSupabase(input: {
         email: input.email,
         password: input.password,
         options: {
-          data: input.name ? { full_name: input.name } : undefined,
+          data: {
+            ...(input.name ? { full_name: input.name } : {}),
+            ...(input.proficiencyLevel
+              ? { proficiency_level: input.proficiencyLevel }
+              : {}),
+          },
         },
       }),
     },
@@ -187,6 +220,152 @@ export async function loadSupabaseProfile(accessToken: string, userId: string) {
     ok: true as const,
     data: profile,
   };
+}
+
+export async function loadSupabaseLearningTags() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return {
+      ok: false as const,
+      error: SUPABASE_CONFIG_ERROR,
+    };
+  }
+
+  const response = await fetch(
+    `${supabaseUrl("/rest/v1/learning_tags")}?select=*&order=sort_order.asc`,
+    {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    return {
+      ok: false as const,
+      error: "Failed to load learning tags.",
+    };
+  }
+
+  const rows = (await response.json().catch(() => [])) as unknown;
+  const tags = Array.isArray(rows)
+    ? rows.map(learningTagFromUnknown).filter((tag): tag is LearningTagRow => Boolean(tag))
+    : [];
+
+  return {
+    ok: true as const,
+    data: tags,
+  };
+}
+
+export async function loadSupabaseProfileLearningTagIds(
+  accessToken: string,
+  userId: string,
+) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return {
+      ok: false as const,
+      error: SUPABASE_CONFIG_ERROR,
+    };
+  }
+
+  const response = await fetch(
+    `${supabaseUrl("/rest/v1/profile_learning_tags")}?profile_id=eq.${encodeURIComponent(userId)}&select=learning_tag_id`,
+    {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    return {
+      ok: false as const,
+      error: "Failed to load onboarding selections.",
+    };
+  }
+
+  const rows = (await response.json().catch(() => [])) as unknown;
+  const learningTagIds = Array.isArray(rows)
+    ? rows
+        .map((row) => {
+          if (!row || typeof row !== "object" || !("learning_tag_id" in row)) {
+            return null;
+          }
+
+          const value = (row as { learning_tag_id?: unknown }).learning_tag_id;
+          return typeof value === "string" ? value : null;
+        })
+        .filter((tagId): tagId is string => Boolean(tagId))
+    : [];
+
+  return {
+    ok: true as const,
+    data: learningTagIds,
+  };
+}
+
+export function isOnboardingComplete(
+  profile: ProfileRow | null,
+  learningTagIds: string[],
+) {
+  return Boolean(profile?.proficiency_level && learningTagIds.length > 0);
+}
+
+export async function updateSupabaseOnboarding(input: {
+  accessToken: string;
+  userId: string;
+  proficiencyLevel: string;
+  learningTagIds: string[];
+}) {
+  const profileUpdate = await supabaseRequest<null>(
+    `/rest/v1/profiles?id=eq.${encodeURIComponent(input.userId)}`,
+    {
+      method: "PATCH",
+      token: input.accessToken,
+      body: JSON.stringify({
+        proficiency_level: input.proficiencyLevel,
+      }),
+    },
+  );
+
+  if (!profileUpdate.ok) {
+    return profileUpdate;
+  }
+
+  const deleteSelections = await supabaseRequest<null>(
+    `/rest/v1/profile_learning_tags?profile_id=eq.${encodeURIComponent(input.userId)}`,
+    {
+      method: "DELETE",
+      token: input.accessToken,
+    },
+  );
+
+  if (!deleteSelections.ok) {
+    return deleteSelections;
+  }
+
+  if (input.learningTagIds.length === 0) {
+    return {
+      ok: true as const,
+      data: null,
+    };
+  }
+
+  const insertSelections = await supabaseRequest<null>("/rest/v1/profile_learning_tags", {
+    method: "POST",
+    token: input.accessToken,
+    body: JSON.stringify(
+      input.learningTagIds.map((learningTagId) => ({
+        profile_id: input.userId,
+        learning_tag_id: learningTagId,
+      })),
+    ),
+  });
+
+  return insertSelections;
 }
 
 export async function signOutWithSupabase(accessToken: string) {

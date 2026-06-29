@@ -43,3 +43,24 @@ export function normalizeName(value: unknown) {
   return isString(value) ? value.trim() : undefined;
 }
 
+export function normalizeProficiencyLevel(value: unknown) {
+  if (!isString(value)) {
+    return "";
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  return ["beginner", "intermediate", "advanced"].includes(normalized)
+    ? normalized
+    : "";
+}
+
+export function normalizeStringArray(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
+}

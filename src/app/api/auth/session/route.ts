@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import {
+  isOnboardingComplete,
   loadSupabaseProfile,
+  loadSupabaseProfileLearningTagIds,
   loadSupabaseUser,
   isSupabaseConfigured,
   refreshSupabaseSession,
@@ -15,10 +17,20 @@ async function buildSessionState(accessToken: string, refreshToken: string) {
 
   if (userResult.ok) {
     const profileResult = await loadSupabaseProfile(accessToken, userResult.data.id);
+    const learningTagIdsResult = await loadSupabaseProfileLearningTagIds(
+      accessToken,
+      userResult.data.id,
+    );
+    const learningTagIds = learningTagIdsResult.ok ? learningTagIdsResult.data : [];
 
     return {
       user: userResult.data,
       profile: profileResult.ok ? profileResult.data : null,
+      learningTagIds,
+      onboardingComplete: isOnboardingComplete(
+        profileResult.ok ? profileResult.data : null,
+        learningTagIds,
+      ),
       refreshedSession: null,
     };
   }
@@ -43,10 +55,22 @@ async function buildSessionState(accessToken: string, refreshToken: string) {
     refreshed.data.access_token,
     refreshedUser.data.id,
   );
+  const refreshedLearningTagIdsResult = await loadSupabaseProfileLearningTagIds(
+    refreshed.data.access_token,
+    refreshedUser.data.id,
+  );
+  const refreshedLearningTagIds = refreshedLearningTagIdsResult.ok
+    ? refreshedLearningTagIdsResult.data
+    : [];
 
   return {
     user: refreshedUser.data,
     profile: refreshedProfile.ok ? refreshedProfile.data : null,
+    learningTagIds: refreshedLearningTagIds,
+    onboardingComplete: isOnboardingComplete(
+      refreshedProfile.ok ? refreshedProfile.data : null,
+      refreshedLearningTagIds,
+    ),
     refreshedSession: refreshed.data,
   };
 }
@@ -72,6 +96,8 @@ export async function GET(request: NextRequest) {
         authenticated: false,
         user: null,
         profile: null,
+        learningTagIds: [],
+        onboardingComplete: false,
         session: null,
       },
     });
@@ -87,6 +113,8 @@ export async function GET(request: NextRequest) {
           authenticated: false,
           user: null,
           profile: null,
+          learningTagIds: [],
+          onboardingComplete: false,
           session: null,
         },
       },
@@ -103,6 +131,8 @@ export async function GET(request: NextRequest) {
       authenticated: true,
       user: sessionState.user,
       profile: sessionState.profile,
+      learningTagIds: sessionState.learningTagIds,
+      onboardingComplete: sessionState.onboardingComplete,
       session: sessionState.refreshedSession
         ? toSessionPayload(sessionState.refreshedSession)
         : {

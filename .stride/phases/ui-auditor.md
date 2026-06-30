@@ -12,7 +12,6 @@ Never commit, stage, push, or merge.
 Return a structured visual audit report.
 Use Playwright first to inspect the live UI when a preview URL or local route is available.
 If needed, start the app from the edited worktree so Playwright can exercise the actual running app.
-Fall back to browser automation or the browser access tool only when Playwright is unavailable.
 
 Look for:
 

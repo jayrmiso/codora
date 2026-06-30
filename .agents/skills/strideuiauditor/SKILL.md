@@ -17,8 +17,7 @@ Use this skill when a user-facing change needs an explicit visual quality pass.
 ## Do
 
 - Inspect the scoped UI change directly.
-- Check the rendered UI in Playwright first, starting the app from the edited worktree if needed.
-- Fall back to browser automation or the browser tool only when Playwright is unavailable.
+- Check the rendered UI in Playwright, starting the app from the edited worktree if needed.
 - Check visual hierarchy, spacing, rhythm, consistency, responsiveness, interaction clarity, and accessibility.
 - Be concrete about what looks off and what should change.
 - Return findings the builder can act on.

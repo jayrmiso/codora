@@ -12,6 +12,7 @@ Keep the result specific enough that the next command is obvious.
 
 When invoked
 Record the active worktree path, branch, worker mode, builder result, reviewer result, suggested commit subject, preview URL when available, what changed, what to check manually, commands/checks that passed, known risks or untested areas, and the next command.
+Make the manual-test section concrete: summarize the visible change, tell the user what screen or route to open, and list the specific things to inspect.
 
 Return:
 Status: Ready for manual test | Needs code fix | Blocked | Ready to land

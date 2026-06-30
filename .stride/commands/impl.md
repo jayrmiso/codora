@@ -39,5 +39,5 @@ workers(default: stridebuilder + stridereviewer) -> worktree -> load spec -> lig
 - If the reviewer worker is unavailable, stop and report that Stride cannot complete the default impl flow.
 - Treat any `[blocking]` reviewer finding as mandatory: pass it back to `stridebuilder` once, re-run relevant checks, and re-review.
 - For user-facing work, start the preview from the active worktree and verify the URL responds.
-- Write `.stride/runs/current.md` with the manual-test URL, what changed, what to check, passed commands, and next command.
+- Write `.stride/runs/current.md` with the manual-test URL, what changed, what to check next, passed commands, and next command.
 - Update `.stride/ledger.md` with durable facts.

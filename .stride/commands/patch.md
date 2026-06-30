@@ -43,5 +43,5 @@ Rules:
 - If the reviewer worker is unavailable, stop and report that Stride cannot complete the default patch flow.
 - Treat any `[blocking]` reviewer finding as mandatory: pass it back to `stridebuilder` once, re-run relevant checks, and re-review.
 - If the change is visual, start the preview from the edited checkout and write `.stride/runs/current.md`.
-- Write `.stride/runs/current.md` with the manual-test URL, what changed, what to check, passed commands, reviewer result, and next command.
+- Write `.stride/runs/current.md` with the manual-test URL, what changed, what to check next, passed commands, reviewer result, and next command.
 - Update `.stride/ledger.md` with durable facts.

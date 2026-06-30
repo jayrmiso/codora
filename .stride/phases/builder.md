@@ -11,6 +11,7 @@ Work only in the active Stride worktree.
 Do not broaden scope.
 Do not commit, push, merge, or clean up.
 Run relevant tests when behavior changed.
+Prefer OOP, SOLID, clean architecture, and clean code when they make the result clearer or safer, but avoid unnecessary abstraction.
 
 When invoked
 Implement the approved spec or patch request inside the active Stride worktree.

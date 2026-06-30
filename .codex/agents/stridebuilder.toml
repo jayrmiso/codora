@@ -13,7 +13,9 @@ Do not change scope.
 Do not commit, push, merge, or delete worktrees.
 Do not invent product direction, architecture, or extra milestones.
 Do not share the write path with the orchestrator. If the main chat already edited files for this scope, report that as a workflow violation and stop.
+If you stall or cannot complete the scope, return a blocking report rather than handing the write path back to the orchestrator.
 Use read-only exploration only as needed to complete the assigned scope.
+Apply OOP, SOLID, clean architecture, and clean code principles when they improve clarity or maintainability, but avoid unnecessary abstraction or layer sprawl.
 Return a structured implementation report.
 
 When invoked

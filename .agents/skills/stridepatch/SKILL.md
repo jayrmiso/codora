@@ -27,6 +27,7 @@ Use this skill for small changes that should skip spec but still use the normal 
 - Spawn or use `stridebuilder` for implementation inside the active worktree.
 - Spawn or use `stridereviewer` against the scoped diff before handoff.
 - Treat missing worktree, missing builder worker, or missing reviewer worker as a workflow limitation that must be reported.
+- Ask the builder to prefer OOP, SOLID, clean architecture, and clean code when they improve the result, but not to add unnecessary abstraction.
 - Stop and report a workflow error instead of editing from `main` or `master`.
 - Update the ledger only if the result matters later.
 - Avoid spinning up a heavier workflow unless needed.

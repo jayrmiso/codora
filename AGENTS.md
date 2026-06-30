@@ -22,12 +22,14 @@ Before substantial work:
 - If the main chat has spawned `stridebuilder` for a scoped change, it must stop writing files for that scope and only coordinate, verify, and hand off.
 - Spawn or use stridebuilder for patch and impl implementation work.
 - Use stridelead as the read-only recon worker when extra repo facts are needed.
+- Use strideuiauditor as the read-only visual auditor for user-facing or layout-sensitive work before preview and handoff. It should inspect the live UI with Playwright when a route is available.
 - Spawn or use stridereviewer during patch, impl, and land before handoff.
+- If a builder or reviewer result stalls, do not take over the edit or review in the main chat; either ask for a blocking report or spawn another worker when the chosen mode justifies it.
 - Use .stride/runs/current.md for the latest manual-test handoff when it exists.
 - Use .stride/ledger.md for durable project facts.
 - Update the ledger when a discovery should survive future turns.
 
-Primary loop: $stride spec -> approval -> $stride impl -> manual test -> $stride land.
+Primary loop: $stride spec -> approval -> $stride impl -> ui audit if visual -> manual test -> $stride land.
 Small no-spec changes can use $stride patch.
 UI consistency and screenshot-inspired frontend work can use $stride kit ui.
 <!-- stride-workflow:end -->

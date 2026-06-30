@@ -11,7 +11,7 @@ Purpose: orchestrate implementation of the approved spec through builder work, v
 Internal flow:
 
 ```text
-workers(default: stridebuilder + stridereviewer) -> worktree -> load spec -> light probe -> builder worker -> checker -> debugger if needed -> reviewer worker -> fixer via builder if needed -> checker again -> previewer if user-facing -> handoff -> ledger -> final report
+workers(default: stridebuilder + stridereviewer) -> worktree -> load spec -> light probe -> builder worker -> checker -> debugger if needed -> ui-auditor if visual -> reviewer worker -> fixer via builder if needed -> checker again -> previewer if user-facing -> handoff -> ledger -> final report
 ```
 
 ## Rules
@@ -30,9 +30,12 @@ workers(default: stridebuilder + stridereviewer) -> worktree -> load spec -> lig
 - Announce each phase before starting it: `workers`, `worktree`, `probe`, `builder`, `checker`, `reviewer`, `handoff`.
 - Prepare exact builder instructions from the approved spec: active worktree, branch, scope, files/areas, implementation steps, checks, and handoff expectations.
 - Spawn or use the `stridebuilder` worker to make the implementation changes inside the active worktree.
+- If the builder result is incomplete or stalls, do not take over the edit in the main chat. Either ask the builder for a blocking report or spawn a fresh builder worker for the same scope if the chosen mode justifies it.
 - If the builder worker is unavailable, stop and report that Stride cannot continue the default impl flow. Do not silently edit in the main chat.
 - Run the most relevant checks.
+- If the change is visual or user-facing, spawn or use `strideuiauditor` before reviewer and preview so the UI quality is checked separately from behavior, using Playwright against the live app when possible.
 - Spawn or use the `stridereviewer` worker to review the scoped diff for behavior, contracts, states, and missing tests.
+- If the reviewer result is incomplete or stalls, do not replace the review with a main-chat pass. Either ask the reviewer for a blocking report or spawn a fresh reviewer worker for the same scope if the chosen mode justifies it.
 - If the reviewer worker is unavailable, stop and report that Stride cannot complete the default impl flow.
 - Treat any `[blocking]` reviewer finding as mandatory: pass it back to `stridebuilder` once, re-run relevant checks, and re-review.
 - For user-facing work, start the preview from the active worktree and verify the URL responds.

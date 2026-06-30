@@ -13,14 +13,17 @@ Primary commands: `$stride spec`, `$stride impl`, and `$stride land`
 - Use `stridebuilder` as the default implementation worker for patch and impl.
 - Use `stridereviewer` as the default reviewer worker for patch, impl, and land.
 - Use `stridelead` as the read-only recon worker when extra repo facts are needed.
+- Use `strideuiauditor` as the read-only visual auditor for user-facing or layout-sensitive work; it should inspect the live UI with Playwright when a preview URL or local route exists.
 - Once `stridebuilder` is spawned, the orchestrator stops editing and becomes coordination-only for that scoped change.
 - If the orchestrator writes files after spawning `stridebuilder` for the same scope, treat that as a workflow violation and restart the scope through the builder worker.
+- If the work naturally splits, use multiple builder or reviewer workers rather than having the main chat take over the write or review path.
+- If the work is visual, run `strideuiauditor` before preview and handoff so the rendered UI is checked separately from source review.
 - Announce each active phase before doing it so the user can see the flow.
 - Use `node .stride/bin/stride-workflow.mjs ...` as the repo-local Stride runner.
 - If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw `git worktree` commands.
 - Do not edit application files until the Stride runner's `worktree assert` passes for the active Stride worktree.
 - Escalate to planning only when product direction, architecture, or sequencing is genuinely unclear.
-- Escalate beyond the default reviewer only when the change affects contracts, data, auth, payments, persistence, deployment, broad public behavior, or when a recon pass would materially reduce uncertainty.
+- Escalate beyond the default reviewer only when the change affects contracts, data, auth, payments, persistence, deployment, broad public behavior, visual polish, or when a recon pass would materially reduce uncertainty.
 - Escalate to debug when there is a concrete failure to reproduce.
 - End impl work with a ledger update: changed files, checks run, current status, and next action.
 
@@ -138,7 +141,7 @@ Use `$stride mend` when:
 - `debugger`: failure investigator
 - `reviewer`: behavioral reviewer
 - `fixer`: review-response implementer
-- `ui-auditor`: frontend consistency mapper
+- `ui-auditor`: frontend consistency mapper and visual quality checker
 - `reference-reader`: screenshot/reference interpreter
 - `kit-designer`: component and token designer
 - `migrator`: repeated UI replacement implementer

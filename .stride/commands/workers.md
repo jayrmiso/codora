@@ -22,17 +22,18 @@ Use this when:
 
 Modes:
 
-- `default`: main chat orchestrates, `stridebuilder` edits, `stridereviewer` reviews
-- `balance`: default mode plus `stridelead` recon or one probe/debug helper when the task needs more discovery
-- `heavy`: `stridelead` recon plus builder, reviewer, and extra probe/debug support for broad, risky, or cross-cutting changes
+- `default`: main chat orchestrates, one `stridebuilder` edits, one `stridereviewer` reviews
+- `balance`: default mode plus `stridelead` recon or one probe/debug helper when the task needs more discovery; may spawn additional builder or reviewer workers for separate scoped subparts if that reduces risk
+- `heavy`: `stridelead` recon plus multiple builders, multiple reviewers, and extra probe/debug support for broad, risky, or cross-cutting changes
 
 Rules:
 
 - Start with the smallest mode that can safely finish the work.
 - Patch, impl, and land should use default mode unless a stronger mode is justified.
-- Default patch and impl require `stridebuilder` for edits and `stridereviewer` for the scoped diff.
-- Default land requires `stridereviewer` for the final scoped diff.
+- Default patch and impl require at least one `stridebuilder` for edits and at least one `stridereviewer` for the scoped diff.
+- Default land requires at least one `stridereviewer` for the final scoped diff.
 - If a required worker is unavailable, stop and report the workflow limitation. Do not silently do the worker's job in the main chat.
 - Do not add `stridelead` for small changes unless the repo facts are unclear or risky.
+- Do not spawn extra builders or reviewers in default mode unless the task is clearly split into independent scoped parts.
 - Escalate from `default` to `balance` or `heavy` only when the task justifies the token cost.
 - Record the chosen mode in the handoff when it matters to the next step.

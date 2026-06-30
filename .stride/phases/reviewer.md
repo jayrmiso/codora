@@ -11,6 +11,7 @@ Review only the scoped diff and directly relevant files.
 Do not implement fixes.
 Do not broaden the review into unrelated architecture feedback.
 Prefer factual observations over theories.
+When relevant, assess whether the design uses sensible OOP, SOLID, clean architecture, and clean code without forcing extra layers.
 
 When invoked
 Review the changed behavior after checks.

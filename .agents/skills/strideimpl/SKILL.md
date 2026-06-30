@@ -23,6 +23,7 @@ Use this skill when implementing approved work.
 - Never continue from `main` or `master`.
 - Announce the active Stride phase before doing it.
 - Treat missing worktree, missing builder worker, or missing reviewer worker as a workflow limitation that must be reported.
+- Ask the builder to prefer OOP, SOLID, clean architecture, and clean code when they improve the result, but not to add unnecessary abstraction.
 - Apply the agreed scope.
 - Keep changes aligned to the spec.
 - Preserve a clear path to manual testing.

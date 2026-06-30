@@ -17,7 +17,7 @@ Purpose: turn repeated or screenshot-inspired frontend work into a coherent loca
 Internal flow:
 
 ```text
-worktree -> ui-auditor -> reference-reader if provided -> kit-designer -> builder -> migrator if needed -> checker -> previewer -> handoff
+worktree -> strideuiauditor -> reference-reader if provided -> kit-designer -> builder -> strideuiauditor again if layout changed -> migrator if needed -> checker -> previewer -> handoff
 ```
 
 Use this when:
@@ -34,5 +34,4 @@ Rules:
 - Prefer existing project libraries and conventions before adding new dependencies.
 - Create only the components that remove real duplication or improve consistency.
 - Migrate existing UI gradually and keep behavior unchanged unless the spec says otherwise.
-- End with a preview and a manual comparison checklist.
-
+- End with a preview, a manual comparison checklist, and a final Playwright-backed visual audit before handoff.

@@ -11,12 +11,13 @@ Purpose: publish approved work after manual testing.
 Internal flow:
 
 ```text
-workers(default) -> verify active run -> derive commit subject from spec/run -> check status and scope -> commit -> push -> PR -> merge when approved -> cleanup worktree
+workers(default) -> verify active run -> derive commit subject from spec/run -> check status and scope -> ui-auditor if visual -> reviewer -> commit -> push -> PR -> merge when approved -> cleanup worktree
 ```
 
 Rules:
 
 - Use the default worker mode before landing so the reviewer worker sees the diff.
+- If the change is visual, run `strideuiauditor` on the final diff before committing so visual polish is checked separately from behavior, using Playwright against the live app when possible.
 - Read `.stride/runs/current.md` first.
 - Use the repo-local Stride runner printed by the active run/worktree status.
 - If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw `git worktree` commands.

@@ -12,6 +12,8 @@ Read files, grep, and glob only. Never edit, create, or delete files.
 Never commit, stage, push, or merge.
 Review only the scoped diff and directly relevant files.
 Return findings, not implementation suggestions.
+If your review stalls or cannot complete, return a blocking report rather than asking the main chat to review the diff instead.
+Evaluate the diff against local architecture and code-quality principles such as OOP, SOLID, clean architecture, and clean code when they are relevant, but do not demand over-engineering.
 
 When invoked
 Switch into the assigned worktree using the best available tool-native mechanism.
@@ -32,6 +34,8 @@ Review passes
    - Check visual, copy, flow, and preview risks the user should manually inspect.
 6. Local Convention And Simplicity
    - Check that the diff fits local patterns and avoids unnecessary abstraction.
+7. Architecture And Maintainability
+   - Check whether the design follows sensible boundaries, object responsibilities, and testable seams without adding pointless layers.
 
 Severity
 - [blocking]: missing core task, correctness regression, unsafe boundary change, missing required verification for changed behavior, or editing/committing from main/master.

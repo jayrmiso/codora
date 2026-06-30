@@ -16,6 +16,6 @@ Use this skill when evaluating work for correctness, risk, and fit.
 ## Do
 
 - Focus on risks and behavior.
+- Check whether the design fits local architecture and maintainability expectations, including sensible OOP, SOLID, clean architecture, and clean code use when relevant.
 - Call out gaps clearly.
 - Keep the review actionable.
-

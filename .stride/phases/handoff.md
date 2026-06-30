@@ -18,8 +18,9 @@ If the worker flow could not produce a preview URL or visual verification, retur
 If the route is auth-gated, include the authenticated Playwright context or bootstrap note so the ui auditor can reuse it.
 The final handoff response must always include three plain-language items: what changed, how to verify it, and what to do next.
 The final handoff response must be a direct user-facing instruction card, not a reference to internal markdown files or logs.
+It should read like this in substance: "I'm done with the changes.", "Here are the updates:", and "I'm running it now in the worktree." before the preview URL.
 It should say that the app was started from the active worktree, name the preview URL, and tell the user exactly what to test next.
-It is not a valid handoff if it skips starting the app from the active worktree or omits the preview URL.
+It is not a valid handoff if it skips starting the app from the active worktree, omits the preview URL, or leaves out the direct first-person summary.
 Include a literal `Open this URL:` line before the preview URL so the user can copy it quickly.
 Show the task as a short milestone checklist that mirrors the current flow:
 - `Task:`

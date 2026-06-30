@@ -15,7 +15,7 @@ Responsibilities:
 - Record the command, port, URL, process/session, worktree, branch, and a short change summary in `.stride/runs/current.md`.
 - Include the concrete manual-check items the user should verify next.
 - If the app cannot be started from the active worktree, return blocked instead of writing a handoff card.
-- After starting the app from the active worktree, the orchestrator must tell the user exactly which URL to open and what to verify there.
+- After starting the app from the active worktree, the orchestrator must tell the user, in first person, that it is done, what changed, that it is running the app in the worktree, exactly which URL to open, and what to verify there.
 - Write the run record with a literal `Open this URL:` line so the preview URL is immediately visible.
 - If the active worktree does not have the needed local env file, source or export it from the parent checkout or repo folder that does before starting the app.
 - If the target screen is auth-gated, record the authenticated Playwright context or login bootstrap needed by the ui auditor.

@@ -34,11 +34,11 @@ export default async function OnboardingPage() {
             </p>
             <div className="space-y-2">
               <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Build your learning path in three steps
+                Complete onboarding one step at a time
               </h1>
               <p className="max-w-xl text-sm leading-6 text-white/55 sm:text-[15px]">
-                Set the languages you are working with, tell us how confident you
-                feel, and choose the topics you want Codora to emphasize.
+                Start with your languages, move to your milestone level, then
+                choose the topics you want Codora to emphasize.
               </p>
             </div>
           </div>

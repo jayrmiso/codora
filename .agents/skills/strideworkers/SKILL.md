@@ -19,6 +19,7 @@ Use this skill when deciding how much worker support a task deserves.
 - Use the main thread as orchestrator, at least one `stridebuilder` as the editing worker, `stridelead` as the recon worker when needed, at least one `stridereviewer` as the review worker, and `strideuiauditor` as the visual auditor when needed.
 - Add probe or debug support only when the task justifies it.
 - Keep tiny changes on the lightest path.
+- If a worker is still running on the same scope, wait for it to finish. Additional builders are for separate independent slices, not for retrying the same slice early.
 
 ## Modes
 
@@ -29,3 +30,4 @@ Use this skill when deciding how much worker support a task deserves.
 ## Principle
 
 - If splitting the scope across more than one builder keeps the main chat out of the write path, prefer that over having the orchestrator touch files.
+- Do not spawn a replacement worker on the same scope just because the current worker is slow; wait unless the work can be split into distinct slices.

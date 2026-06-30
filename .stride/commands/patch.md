@@ -34,7 +34,7 @@ Rules:
 - Stop and report a workflow error instead of editing from `main` or `master`.
 - Prepare exact builder instructions from the patch request: active worktree, branch, scope, files/areas, implementation steps, checks, and handoff expectations.
 - Spawn or use the `stridebuilder` worker to make the implementation changes inside the active worktree.
-- If the builder result is incomplete or stalls, do not take over the edit in the main chat. Either ask the builder for a blocking report or spawn a fresh builder worker for the same scope if the chosen mode justifies it.
+- If the builder result is incomplete or stalls, keep waiting for that worker unless there is a separate independent slice that can be assigned to another builder. Do not replace an in-flight worker with a retry on the same scope.
 - If the builder worker is unavailable, stop and report that Stride cannot continue the default patch flow. Do not silently edit in the main chat.
 - Once a builder owns the scope, the main chat must not make follow-up code edits, preview tweaks, or bug fixes for that scope. If more implementation work is needed, hand it to another builder worker instead of reclaiming the write path.
 - Run the most relevant checks.

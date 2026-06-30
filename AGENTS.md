@@ -18,12 +18,16 @@ Before substantial work:
 - Use `node .stride/bin/stride-workflow.mjs ...` as the repo-local Stride runner.
 - If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw git worktree commands.
 - Do not edit application files until the Stride runner's `worktree assert` passes for the active Stride worktree.
-- Spawn or use the stride-reviewer worker during carry and land before handoff.
+- Treat the main chat as orchestrator for patch, impl, and land.
+- If the main chat has spawned `stridebuilder` for a scoped change, it must stop writing files for that scope and only coordinate, verify, and hand off.
+- Spawn or use stridebuilder for patch and impl implementation work.
+- Use stridelead as the read-only recon worker when extra repo facts are needed.
+- Spawn or use stridereviewer during patch, impl, and land before handoff.
 - Use .stride/runs/current.md for the latest manual-test handoff when it exists.
 - Use .stride/ledger.md for durable project facts.
 - Update the ledger when a discovery should survive future turns.
 
-Primary loop: $stride frame -> approval -> $stride carry -> manual test -> $stride land.
-Tiny changes can use $stride touch.
+Primary loop: $stride spec -> approval -> $stride impl -> manual test -> $stride land.
+Small no-spec changes can use $stride patch.
 UI consistency and screenshot-inspired frontend work can use $stride kit ui.
 <!-- stride-workflow:end -->

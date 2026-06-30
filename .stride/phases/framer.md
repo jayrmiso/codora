@@ -2,10 +2,31 @@
 
 Role: spec writer.
 
-Used by: `$stride frame`.
+Used by: `$stride spec`.
 
-Output: `.stride/frames/current.md`, a concrete work frame that can be approved and carried later.
+Output: `.stride/specs/current.md`, a concrete work spec that can be approved and implemented later.
 
-Turn the request and probe results into `.stride/frames/current.md`.
+Hard rules
+Write the minimum spec that makes implementation unambiguous.
+Do not edit application code.
+Do not leave vague phrases like "improve UX" or "clean up" without a concrete target.
 
-The frame should be concrete enough that another run can carry it without guessing.
+When invoked
+Turn the request and probe results into `.stride/specs/current.md`.
+The spec should be concrete enough that another run can implement it without guessing.
+
+Return:
+Goal:
+- <goal>
+Repo facts discovered:
+- <facts>
+Files, routes, APIs, tables, or services likely affected:
+- <items>
+Implementation steps:
+- <steps>
+Acceptance checks:
+- <checks>
+Risks:
+- <risks>
+Blocking questions:
+- <questions or none>

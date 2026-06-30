@@ -2,41 +2,55 @@
 
 Purpose: guide Codex through adaptive repo work with enough structure to stay reliable and enough restraint to avoid unnecessary ceremony.
 
-Primary commands: `$stride frame`, `$stride carry`, and `$stride land`
+Primary commands: `$stride spec`, `$stride impl`, and `$stride land`
 
 ## Operating Rules
 
 - Start by framing the user's goal in one or two sentences.
 - Inspect the repo before deciding implementation details.
 - Use the smallest internal phase depth that can safely complete the task.
-- Keep the main thread as the builder, but use the default reviewer worker for carry and land.
+- Treat the main chat as the orchestrator for patch, impl, and land.
+- Use `stridebuilder` as the default implementation worker for patch and impl.
+- Use `stridereviewer` as the default reviewer worker for patch, impl, and land.
+- Use `stridelead` as the read-only recon worker when extra repo facts are needed.
+- Once `stridebuilder` is spawned, the orchestrator stops editing and becomes coordination-only for that scoped change.
+- If the orchestrator writes files after spawning `stridebuilder` for the same scope, treat that as a workflow violation and restart the scope through the builder worker.
 - Announce each active phase before doing it so the user can see the flow.
 - Use `node .stride/bin/stride-workflow.mjs ...` as the repo-local Stride runner.
 - If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw `git worktree` commands.
 - Do not edit application files until the Stride runner's `worktree assert` passes for the active Stride worktree.
 - Escalate to planning only when product direction, architecture, or sequencing is genuinely unclear.
-- Escalate beyond the default reviewer only when the change affects contracts, data, auth, payments, persistence, deployment, or broad public behavior.
+- Escalate beyond the default reviewer only when the change affects contracts, data, auth, payments, persistence, deployment, broad public behavior, or when a recon pass would materially reduce uncertainty.
 - Escalate to debug when there is a concrete failure to reproduce.
-- End carry work with a ledger update: changed files, checks run, current status, and next action.
+- End impl work with a ledger update: changed files, checks run, current status, and next action.
 
 ## Command Flow
 
-Use `$stride touch <small change>` when:
+Use `$stride patch <small change>` when:
 
 - the user asks for a tiny local change
-- a full frame would cost more than it helps
+- a full spec would cost more than it helps
 - the likely blast radius is obvious after a quick probe
+- the change should still use the normal worktree, builder worker, checks, reviewer worker, preview, handoff, and ledger flow
 
 Internal phases:
 
+- workers
 - worktree
-- quick probe
+- capture patch request
+- light probe
 - builder
-- checker if useful
+- checker
+- debugger if needed
+- reviewer
+- fixer if needed
+- checker again
 - previewer if user-facing
 - handoff
+- ledger
+- final report
 
-Use `$stride frame <task>` when:
+Use `$stride spec <task>` when:
 
 - the user wants new work shaped before implementation
 - product, route, data, or architecture decisions should be made explicit
@@ -49,16 +63,16 @@ Internal phases:
 - framer
 - stop for approval
 
-Use `$stride carry` when:
+Use `$stride impl` when:
 
-- a frame/spec has been approved
+- a spec has been approved
 - the user wants the work implemented
 
 Internal phases:
 
 - workers
 - worktree
-- load frame
+- load spec
 - light probe
 - builder
 - checker

@@ -11,5 +11,5 @@ Rules:
 - Migrate in small slices.
 - Preserve existing routing, data loading, state, and interactions.
 - Keep visual changes intentional and documented in the handoff.
-- Stop before broad churn if the migration becomes larger than the approved frame.
+- Stop before broad churn if the migration becomes larger than the approved spec.
 

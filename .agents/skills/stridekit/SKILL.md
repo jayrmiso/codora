@@ -1,5 +1,5 @@
 ---
-name: stride-kit
+name: stridekit
 description: Stride Workflow skill for UI consistency and reference-driven frontend work. Use when the user wants a component, screen, or visual pattern aligned to an existing reference.
 ---
 

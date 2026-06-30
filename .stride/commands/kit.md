@@ -33,6 +33,6 @@ Rules:
 - Translate references into layout principles, spacing, hierarchy, component behavior, and interaction patterns.
 - Prefer existing project libraries and conventions before adding new dependencies.
 - Create only the components that remove real duplication or improve consistency.
-- Migrate existing UI gradually and keep behavior unchanged unless the frame says otherwise.
+- Migrate existing UI gradually and keep behavior unchanged unless the spec says otherwise.
 - End with a preview and a manual comparison checklist.
 

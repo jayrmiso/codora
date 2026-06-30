@@ -11,7 +11,7 @@ Purpose: choose the lightest worker strategy that fits the task, so token use st
 Internal flow:
 
 ```text
-frame/run probe -> worker policy -> minimum viable workers -> carry/review/land
+spec/run probe -> worker policy -> minimum viable workers -> builder/reviewer/land
 ```
 
 Use this when:
@@ -22,16 +22,17 @@ Use this when:
 
 Modes:
 
-- `default`: main thread builds, plus one reviewer worker for the diff
-- `balance`: default mode plus one extra probe/debug helper when the task needs more discovery
-- `heavy`: main thread plus reviewer and extra probe/debug support for broad, risky, or cross-cutting changes
+- `default`: main chat orchestrates, `stridebuilder` edits, `stridereviewer` reviews
+- `balance`: default mode plus `stridelead` recon or one probe/debug helper when the task needs more discovery
+- `heavy`: `stridelead` recon plus builder, reviewer, and extra probe/debug support for broad, risky, or cross-cutting changes
 
 Rules:
 
 - Start with the smallest mode that can safely finish the work.
-- Carry and land should use default mode unless a stronger mode is justified.
-- Default mode requires the `stride-reviewer` worker for the scoped diff.
-- If the worker is unavailable, report that limitation in the handoff and run the same review locally.
-- Do not add more than the reviewer worker for tiny changes.
+- Patch, impl, and land should use default mode unless a stronger mode is justified.
+- Default patch and impl require `stridebuilder` for edits and `stridereviewer` for the scoped diff.
+- Default land requires `stridereviewer` for the final scoped diff.
+- If a required worker is unavailable, stop and report the workflow limitation. Do not silently do the worker's job in the main chat.
+- Do not add `stridelead` for small changes unless the repo facts are unclear or risky.
 - Escalate from `default` to `balance` or `heavy` only when the task justifies the token cost.
 - Record the chosen mode in the handoff when it matters to the next step.

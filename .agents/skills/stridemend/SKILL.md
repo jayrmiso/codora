@@ -1,5 +1,5 @@
 ---
-name: stride-mend
+name: stridemend
 description: Stride Workflow skill for fixing review or test issues. Use when something broke and should be repaired without expanding scope.
 ---
 
@@ -16,6 +16,6 @@ Use this skill when fixing issues discovered during review or manual testing.
 ## Do
 
 - Fix the issue without broadening scope.
-- Keep the frame intact.
+- Keep the spec intact.
 - Re-check the result after the fix.
 

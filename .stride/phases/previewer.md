@@ -2,7 +2,7 @@
 
 Role: manual-test server manager.
 
-Used by: `$stride carry`, `$stride touch`, and `$stride mend` for user-facing changes.
+Used by: `$stride impl`, `$stride patch`, and `$stride mend` for user-facing changes.
 
 Output: a verified local preview URL from the active checkout or worktree.
 

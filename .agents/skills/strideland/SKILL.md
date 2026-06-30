@@ -1,5 +1,5 @@
 ---
-name: stride-land
+name: strideland
 description: Stride Workflow skill for landing finished work. Use when the change has been manually verified and should be merged or finalized.
 ---
 
@@ -10,7 +10,7 @@ Use this skill when work is ready to land after manual verification.
 ## Use when
 
 - The change has been tested manually.
-- The result matches the frame.
+- The result matches the spec.
 - The work should be merged, finalized, or handed off.
 
 ## Do
@@ -22,6 +22,6 @@ Use this skill when work is ready to land after manual verification.
 - Run the Stride runner's `worktree assert <active-worktree-path>` before committing or pushing.
 - Check the final diff.
 - Preserve any handoff notes.
-- Derive the commit subject from the frame and handoff, or use `stride-workflow subject` if available.
-- Use a conventional commit subject that matches the approved frame.
+- Derive the commit subject from the spec and handoff, or use `stride-workflow subject` if available.
+- Use a conventional commit subject that matches the approved spec.
 - Land only what was actually verified.

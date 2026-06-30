@@ -2,7 +2,7 @@
 
 Role: failure investigator.
 
-Used by: `$stride carry` when checks fail, and by `$stride mend`.
+Used by: `$stride impl` when checks fail, and by `$stride mend`.
 
 Output: isolated cause, patch, and rerun result for the failing check.
 

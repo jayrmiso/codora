@@ -2,7 +2,7 @@
 
 Role: verification runner.
 
-Used by: `$stride carry`, `$stride mend`, and after fixer changes.
+Used by: `$stride impl`, `$stride mend`, and after fixer changes.
 
 Output: concrete pass/fail results from the repo's real commands.
 

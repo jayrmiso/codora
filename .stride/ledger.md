@@ -5,15 +5,12 @@ This file records durable project knowledge discovered while using Stride.
 ## Current State
 
 - Stride has been initialized for this project.
-- Onboarding uses a shared searchable multi-select dropdown component.
-- The onboarding language picker is Python-only, and learning tags display a Python badge.
-- Onboarding preserves existing non-Python language preferences when the Python-only UI submits updates.
 
 ## Decisions
 
-- Stride is a frame-and-carry workflow, not a named-agent orchestration system.
+- Stride is a spec-and-impl workflow with explicit worker orchestration.
 - Token use should be value-aware, not merely minimized.
-- Core lifecycle is `$stride touch` for tiny changes or `$stride frame` -> `$stride carry` -> manual test -> `$stride land` for larger work.
+- Core lifecycle is `$stride patch` for tiny changes or `$stride spec` -> `$stride impl` -> manual test -> `$stride land` for larger work.
 - Frontend systemization uses `$stride kit ui`.
 
 ## Open Questions

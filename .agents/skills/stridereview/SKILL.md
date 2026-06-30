@@ -1,6 +1,6 @@
 ---
-name: stride-review
-description: Stride Workflow skill for review loops. Use when the user wants a behavioral review or a pass over the frame and implementation.
+name: stridereview
+description: Stride Workflow skill for review loops. Use when the user wants a behavioral review or a pass over the spec and implementation.
 ---
 
 # Stride Review

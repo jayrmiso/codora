@@ -1,12 +1,12 @@
-# Frame Command
+# Spec Command
 
 User call:
 
 ```text
-$stride frame <task>
+$stride spec <task>
 ```
 
-Purpose: turn the user's request into an approved work frame before implementation.
+Purpose: turn the user's request into an approved work spec before implementation.
 
 Internal flow:
 
@@ -16,7 +16,7 @@ intake -> probe -> framer -> spec -> stop
 
 ## Output
 
-Write or update `.stride/frames/current.md` with:
+Write or update `.stride/specs/current.md` with:
 
 - goal
 - repo facts discovered
@@ -26,5 +26,5 @@ Write or update `.stride/frames/current.md` with:
 - risks
 - blocking questions, only if truly blocking
 
-Do not edit application code during frame.
+Do not edit application code during spec.
 

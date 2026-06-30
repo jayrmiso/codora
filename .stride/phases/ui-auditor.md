@@ -2,7 +2,7 @@
 
 Role: frontend consistency mapper.
 
-Used by: `$stride kit ui`, and occasionally `$stride frame` for UI-heavy features.
+Used by: `$stride kit ui`, and occasionally `$stride spec` for UI-heavy features.
 
 Output: a map of repeated UI patterns, inconsistent styling, and component opportunities.
 

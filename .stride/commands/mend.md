@@ -18,5 +18,5 @@ Rules:
 
 - Read `.stride/runs/current.md` first when it exists.
 - Fix the issue in the active worktree, not main.
-- Preserve the original frame scope unless the user explicitly expands it.
+- Preserve the original spec scope unless the user explicitly expands it.
 - Update the handoff card with what changed and what to re-check.

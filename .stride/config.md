@@ -2,7 +2,7 @@
 
 Purpose: guide Codex through adaptive repo work with enough structure to stay reliable and enough restraint to avoid unnecessary ceremony.
 
-Primary commands: `$stride spec`, `$stride impl`, and `$stride land`
+Primary commands: `$stride touch`, `$stride spec`, `$stride impl`, and `$stride land`
 
 ## Operating Rules
 
@@ -34,6 +34,22 @@ Primary commands: `$stride spec`, `$stride impl`, and `$stride land`
 - End impl work with a ledger update: changed files, checks run, current status, and next action.
 
 ## Command Flow
+
+Use `$stride touch <small change>` when:
+
+- the user asks for a tiny local change
+- a full spec would cost more than it helps
+- the likely blast radius is obvious after a quick probe
+- the change is non-UI or does not need a live preview
+- you want the fastest safe path for a one-off tweak
+
+Internal phases:
+
+- quick probe
+- direct edit
+- checker if useful
+- previewer if user-facing
+- handoff
 
 Use `$stride patch <small change>` when:
 

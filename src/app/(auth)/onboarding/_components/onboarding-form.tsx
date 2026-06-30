@@ -29,10 +29,6 @@ const proficiencyLevels = [
   },
 ] as const;
 
-const proficiencyLevelLabels = new Map(
-  proficiencyLevels.map((level) => [level.value, level.label]),
-);
-
 type Props = {
   programmingLanguages: ProgrammingLanguageRow[];
   learningTags: LearningTagRow[];
@@ -68,39 +64,6 @@ function TagIcon({ label }: { label: string }) {
     <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-[11px] font-semibold tracking-[0.18em] text-white/70">
       {label.slice(0, 2).toUpperCase()}
     </span>
-  );
-}
-
-function SelectedLanguagePill({
-  language,
-  proficiencyLevel,
-  onRemove,
-  disabled,
-}: {
-  language: ProgrammingLanguageRow;
-  proficiencyLevel: string;
-  onRemove: (languageId: string) => void;
-  disabled: boolean;
-}) {
-  return (
-    <button
-      className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/[0.08] px-2.5 py-1.5 text-left text-[11px] font-medium text-sky-50 transition hover:border-sky-300/25 hover:bg-sky-400/[0.12]"
-      type="button"
-      disabled={disabled}
-      onClick={() => onRemove(language.id)}
-    >
-      <LanguageIcon
-        label={language.name}
-        className="h-4 w-4 rounded-full border-sky-300/20 bg-sky-300/[0.12] text-[7px] tracking-[0.1em] text-sky-100"
-      />
-      <span className="min-w-0 truncate">{language.name}</span>
-      <span className="rounded-full border border-white/10 bg-black/20 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.2em] text-sky-100/70">
-        {proficiencyLevelLabels.get(proficiencyLevel) ?? proficiencyLevel}
-      </span>
-      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-black/20 text-sky-100/70 transition group-hover:text-sky-50">
-        <X size={10} />
-      </span>
-    </button>
   );
 }
 
@@ -321,105 +284,64 @@ export function OnboardingForm({
             />
 
             {selectedLanguages.length > 0 ? (
-              <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.025] p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.28em] text-white/35">
-                      Selected languages
-                    </p>
-                    <p className="mt-1 text-sm text-white/45">
-                      {selectedLanguages.length} focused languages
-                    </p>
-                  </div>
-                  <p className="text-xs text-white/35">Summary only</p>
-                </div>
-
-                <div className="mt-3 flex gap-2 overflow-x-auto pb-1 pr-1 [scrollbar-width:thin]">
+              <div className="mt-4 rounded-3xl border border-white/10 bg-black/15">
+                <div className="max-h-80 overflow-y-auto">
                   {selectedLanguages.map((language) => (
-                    <SelectedLanguagePill
+                    <div
                       key={language.id}
-                      language={language}
-                      proficiencyLevel={languageDrafts[language.id] ?? proficiencyLevels[0].value}
-                      onRemove={toggleLanguage}
-                      disabled={pending}
-                    />
-                  ))}
-                </div>
-
-                <div className="mt-4 rounded-3xl border border-white/10 bg-black/15">
-                  <div className="flex items-center justify-between gap-3 border-b border-white/8 px-4 py-3">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.28em] text-white/35">
-                        Details
-                      </p>
-                      <h4 className="mt-1 text-sm font-medium text-white">
-                        Proficiency settings
-                      </h4>
-                    </div>
-                    <p className="text-xs text-white/35">Bounded scroll area</p>
-                  </div>
-
-                  <div className="max-h-80 overflow-y-auto">
-                    {selectedLanguages.map((language) => (
-                      <div
-                        key={language.id}
-                        className="flex flex-col gap-3 border-b border-white/8 px-4 py-4 last:border-b-0 lg:flex-row lg:items-start lg:justify-between"
-                      >
-                        <div className="flex min-w-0 items-start gap-3">
-                          <LanguageIcon
-                            label={language.name}
-                            className="h-8 w-8 rounded-xl text-[8px] tracking-[0.14em]"
-                            ariaHidden
-                          />
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-white">{language.name}</p>
-                              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-white/40">
-                                Selected
-                              </span>
-                            </div>
-                            <p className="mt-0.5 max-w-md text-xs leading-5 text-white/45">
-                              {language.description ??
-                                "Choose how confident you feel with this language."}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 lg:shrink-0">
-                          <label className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.025] px-3 py-2">
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">
-                              Level
-                            </span>
-                            <span className="sr-only">{`${language.name} proficiency level`}</span>
-                            <select
-                              className="h-9 min-w-32 rounded-lg border border-white/10 bg-[#0c0c0c] px-3 text-sm text-white outline-none transition focus:border-white/30"
-                              disabled={pending}
-                              value={languageDrafts[language.id] ?? proficiencyLevels[0].value}
-                              onChange={(event) =>
-                                updateLanguageDraft(language.id, event.target.value)
-                              }
-                            >
-                              {proficiencyLevels.map((level) => (
-                                <option key={level.value} value={level.value}>
-                                  {level.label}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-
-                          <button
-                            className="rounded-full border border-white/10 bg-white/[0.03] p-2 text-white/45 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
-                            type="button"
-                            disabled={pending}
-                            onClick={() => toggleLanguage(language.id)}
-                            aria-label={`Remove ${language.name}`}
-                          >
-                            <X size={12} />
-                          </button>
+                      className="flex flex-col gap-3 border-b border-white/8 px-4 py-3 last:border-b-0 lg:flex-row lg:items-center lg:justify-between"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <LanguageIcon
+                          label={language.name}
+                          className="h-8 w-8 rounded-xl text-[8px] tracking-[0.14em]"
+                          ariaHidden
+                        />
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-white">
+                            {language.name}
+                          </p>
+                          <p className="mt-0.5 truncate text-xs text-white/45">
+                            {language.description ??
+                              "Choose how confident you feel with this language."}
+                          </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
+
+                      <div className="flex items-center gap-2 lg:shrink-0">
+                        <label className="flex items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.025] px-3 py-2">
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">
+                            Level
+                          </span>
+                          <span className="sr-only">{`${language.name} proficiency level`}</span>
+                          <select
+                            className="h-9 min-w-32 rounded-lg border border-white/10 bg-[#0c0c0c] px-3 text-sm text-white outline-none transition focus:border-white/30"
+                            disabled={pending}
+                            value={languageDrafts[language.id] ?? proficiencyLevels[0].value}
+                            onChange={(event) =>
+                              updateLanguageDraft(language.id, event.target.value)
+                            }
+                          >
+                            {proficiencyLevels.map((level) => (
+                              <option key={level.value} value={level.value}>
+                                {level.label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <button
+                          className="rounded-full border border-white/10 bg-white/[0.03] p-2 text-white/45 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+                          type="button"
+                          disabled={pending}
+                          onClick={() => toggleLanguage(language.id)}
+                          aria-label={`Remove ${language.name}`}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : null}

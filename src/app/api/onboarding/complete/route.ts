@@ -16,6 +16,11 @@ import { AUTH_COOKIE_NAMES, SUPABASE_CONFIG_ERROR } from "@/infrastructure/supab
 import { setAuthCookies } from "@/infrastructure/supabase/cookies";
 import type { SupabaseSession } from "@/infrastructure/supabase/types";
 import {
+  isTestAuthToken,
+  setTestAuthOnboardingComplete,
+} from "@/infrastructure/supabase/test-auth";
+import {
+  hasValidOnboardingPayload,
   normalizeLanguagePreferences,
   normalizeStringArray,
   readJsonBody,
@@ -64,6 +69,28 @@ async function resolveSession(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await readJsonBody(request);
+  const accessToken = request.cookies.get(AUTH_COOKIE_NAMES.accessToken)?.value ?? "";
+  const refreshToken = request.cookies.get(AUTH_COOKIE_NAMES.refreshToken)?.value ?? "";
+
+  if (isTestAuthToken(accessToken, refreshToken)) {
+    if (!hasValidOnboardingPayload(body)) {
+      return NextResponse.json(
+        { ok: false, error: "Choose at least one language and one learning tag." },
+        { status: 400 },
+      );
+    }
+
+    const response = NextResponse.json({
+      ok: true,
+      data: {
+        onboardingComplete: true,
+      },
+    });
+
+    setTestAuthOnboardingComplete(response, true);
+    return response;
+  }
+
   const languagePreferences = normalizeLanguagePreferences(body.language_preferences);
   const learningTagIds = [...new Set(normalizeStringArray(body.learning_tag_ids))];
 

@@ -1,4 +1,22 @@
 Status: Worktree ready
+Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-step-flow
+Active branch: stride/onboarding-step-flow
+Worker mode used: default
+Reviewer worker result: not run in this session; no callable reviewer worker tool was available
+Next command: manually verify dev-only bypass sign-in, onboarding completion, session state, and sign-out in the running app
+
+---
+
+Status: Worktree ready
+Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-step-flow
+Active branch: stride/onboarding-step-flow
+Worker mode used: default
+Reviewer worker result: approved
+Next command: perform manual visual verification when an authenticated Playwright-capable browser backend is available, then continue with handoff
+
+---
+
+Status: Worktree ready
 Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/remove-badges-combine-tags-resize-card
 Active branch: stride/remove-badges-combine-tags-resize-card
 Worker mode used: pending

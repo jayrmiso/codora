@@ -35,6 +35,30 @@ export async function readJsonBody(request: NextRequest) {
   }
 }
 
+export function hasNonEmptyPayload(value: unknown) {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      Object.keys(value).length > 0,
+  );
+}
+
+export function hasValidOnboardingPayload(value: unknown) {
+  if (!hasNonEmptyPayload(value) || !value || typeof value !== "object") {
+    return false;
+  }
+
+  const languagePreferences = normalizeLanguagePreferences(
+    (value as { language_preferences?: unknown }).language_preferences,
+  );
+  const learningTagIds = normalizeStringArray(
+    (value as { learning_tag_ids?: unknown }).learning_tag_ids,
+  );
+
+  return languagePreferences.length > 0 && learningTagIds.length > 0;
+}
+
 export function normalizeEmail(value: unknown) {
   return isEmail(value) ? value.trim().toLowerCase() : "";
 }

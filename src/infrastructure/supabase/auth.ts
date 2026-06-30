@@ -3,6 +3,11 @@ import {
   SUPABASE_CONFIG_ERROR,
   SUPABASE_URL,
 } from "./config";
+import {
+  TEST_AUTH_ENABLED,
+  TEST_AUTH_LEARNING_TAGS,
+  TEST_AUTH_PROGRAMMING_LANGUAGES,
+} from "./test-auth";
 import type {
   AuthResponse,
   ProfileRow,
@@ -293,6 +298,13 @@ export async function loadSupabaseProfile(accessToken: string, userId: string) {
 
 export async function loadSupabaseLearningTags() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    if (TEST_AUTH_ENABLED) {
+      return {
+        ok: true as const,
+        data: TEST_AUTH_LEARNING_TAGS,
+      };
+    }
+
     return {
       ok: false as const,
       error: SUPABASE_CONFIG_ERROR,
@@ -329,6 +341,13 @@ export async function loadSupabaseLearningTags() {
 
 export async function loadSupabaseProgrammingLanguages() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    if (TEST_AUTH_ENABLED) {
+      return {
+        ok: true as const,
+        data: TEST_AUTH_PROGRAMMING_LANGUAGES,
+      };
+    }
+
     return {
       ok: false as const,
       error: SUPABASE_CONFIG_ERROR,

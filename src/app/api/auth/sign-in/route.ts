@@ -6,6 +6,11 @@ import {
   toSessionPayload,
 } from "@/infrastructure/supabase/auth";
 import { SUPABASE_CONFIG_ERROR } from "@/infrastructure/supabase/config";
+import {
+  getTestAuthSession,
+  isTestAuthCredentials,
+  setTestAuthOnboardingComplete,
+} from "@/infrastructure/supabase/test-auth";
 import { normalizeEmail, readJsonBody, isStrongPassword } from "../_lib";
 
 export async function POST(request: NextRequest) {
@@ -25,6 +30,22 @@ export async function POST(request: NextRequest) {
       { ok: false, error: "Password must be at least 8 characters long." },
       { status: 400 },
     );
+  }
+
+  if (isTestAuthCredentials(email, password)) {
+    const session = getTestAuthSession();
+    const response = NextResponse.json(
+      {
+        ok: true,
+        data: toSessionPayload(session),
+        message: "Signed in successfully.",
+      },
+      { status: 200 },
+    );
+
+    setAuthCookies(response, session);
+    setTestAuthOnboardingComplete(response, false);
+    return response;
   }
 
   const result = await signInWithSupabase({ email, password });

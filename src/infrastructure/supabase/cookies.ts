@@ -1,6 +1,7 @@
 import type { NextResponse } from "next/server";
 
 import { AUTH_COOKIE_NAMES } from "./config";
+import { TEST_AUTH_ONBOARDING_COOKIE } from "./test-auth";
 import type { SupabaseSession } from "./types";
 
 function baseCookieOptions(maxAge?: number) {
@@ -33,5 +34,5 @@ export function setAuthCookies(
 export function clearAuthCookies(response: NextResponse) {
   response.cookies.set(AUTH_COOKIE_NAMES.accessToken, "", baseCookieOptions(0));
   response.cookies.set(AUTH_COOKIE_NAMES.refreshToken, "", baseCookieOptions(0));
+  response.cookies.set(TEST_AUTH_ONBOARDING_COOKIE, "", baseCookieOptions(0));
 }
-

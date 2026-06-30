@@ -1,3 +1,12 @@
+Status: Worktree ready
+Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-density-fix
+Active branch: stride/onboarding-density-fix
+Worker mode used: pending
+Reviewer worker result: pending
+Next command: continue the current Stride phase from the active worktree
+
+---
+
 Status: Landed
 
 # Current Run

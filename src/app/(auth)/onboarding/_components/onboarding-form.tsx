@@ -71,14 +71,6 @@ function TagIcon({ label }: { label: string }) {
   );
 }
 
-function StepBadge({ step }: { step: number }) {
-  return (
-    <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-sky-300/20 bg-sky-400/12 text-sm font-semibold text-sky-100">
-      {step}
-    </span>
-  );
-}
-
 export function OnboardingForm({
   programmingLanguages,
   learningTags,
@@ -223,12 +215,12 @@ export function OnboardingForm({
   );
 
   const confidenceReady = isConfidenceStepReady(selectedLanguages.length);
+  const stepLabels = ["Choose languages", "Set confidence", "Pick focus tags"];
 
   const stepContent = useMemo(
     () =>
       ({
         1: {
-          badge: "Step 1 of 3",
           title: "Pick the languages in your first milestone",
           description:
             "Choose the languages you want Codora to focus on first. You can change this later, but the wizard starts here.",
@@ -239,7 +231,6 @@ export function OnboardingForm({
           helper: "Select at least one language to continue.",
         },
         2: {
-          badge: "Step 2 of 3",
           title: "Set the milestone level for each language",
           description:
             "Tell us how confident you feel so the app can match your first exercises and recommendations.",
@@ -250,7 +241,6 @@ export function OnboardingForm({
           helper: "Add a language in step 1 before setting confidence.",
         },
         3: {
-          badge: "Step 3 of 3",
           title: "Choose the focus areas you want to see next",
           description:
             "Pick the topics and themes you want to surface in future exercises and guidance.",
@@ -261,7 +251,6 @@ export function OnboardingForm({
       }) satisfies Record<
         1 | 2 | 3,
       {
-        badge: string;
         title: string;
         description: string;
         progress: string;
@@ -371,86 +360,91 @@ export function OnboardingForm({
         </p>
       ) : null}
 
-      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+      <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
         <div className="border-b border-white/8 px-5 py-5 sm:px-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.35em] text-white/35">
-                Codora onboarding
-              </p>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                  {stepContent[currentStep].title}
-                </h2>
-                <p className="max-w-2xl text-sm leading-6 text-white/55 sm:text-[15px]">
-                  {stepContent[currentStep].description}
-                </p>
-              </div>
-            </div>
+          <p className="text-xs uppercase tracking-[0.35em] text-white/35">
+            Codora onboarding
+          </p>
 
-            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[30rem]">
-              {[1, 2, 3].map((step) => {
-                const active = step === currentStep;
-                const completed = step < currentStep;
+          <div className="mt-5 grid grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2">
+            {[1, 2, 3].map((step, index) => {
+              const active = step === currentStep;
+              const completed = step < currentStep;
 
-                return (
+              return (
+                <div key={step} className="contents">
                   <button
-                    key={step}
                     className={[
-                      "rounded-2xl border px-4 py-3 text-left text-sm transition",
+                      "flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition",
                       active
-                        ? "border-sky-300/30 bg-sky-400/12"
+                        ? "border-sky-300/40 bg-sky-400/15 text-sky-100"
                         : completed
-                          ? "border-white/15 bg-white/[0.04] hover:border-white/20"
-                      : "border-white/10 bg-black/20 hover:border-white/15",
+                          ? "border-white/20 bg-white/[0.06] text-white"
+                          : "border-white/12 bg-black/20 text-white/45",
                     ].join(" ")}
                     type="button"
                     disabled={pending || step > currentStep}
                     onClick={() => setCurrentStep(step as 1 | 2 | 3)}
+                    aria-current={active ? "step" : undefined}
+                    aria-label={`Step ${step}: ${stepLabels[index]}`}
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200/75">
-                      Step {step}
-                    </p>
-                    <p className="mt-2 font-medium text-white">
-                      {step === 1
-                        ? "Choose languages"
-                        : step === 2
-                          ? "Set confidence"
-                          : "Pick focus tags"}
-                    </p>
+                    {step}
                   </button>
-                );
-              })}
-            </div>
+
+                  {index < stepLabels.length - 1 ? (
+                    <div
+                      className={[
+                        "h-px w-full",
+                        step < currentStep ? "bg-white/35" : "bg-white/12",
+                      ].join(" ")}
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 grid grid-cols-3 gap-3 text-[11px] uppercase tracking-[0.22em] text-white/35">
+            {stepLabels.map((label, index) => (
+              <p
+                key={label}
+                className={
+                  index + 1 === currentStep ? "text-white/70" : undefined
+                }
+              >
+                {label}
+              </p>
+            ))}
           </div>
         </div>
 
-        <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_17rem]">
-          <div className="space-y-5 px-5 py-5 sm:px-6">
-            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/60">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
-                  {stepContent[currentStep].badge}
-                </p>
-                <p className="font-medium text-white">{stepContent[currentStep].progress}</p>
-              </div>
-              <p className="mt-2 text-xs leading-5 text-white/45">
-                {stepContent[currentStep].helper}
+        <div className="space-y-5 px-5 py-5 sm:px-6">
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                {stepContent[currentStep].title}
+              </h2>
+              <p className="max-w-2xl text-sm leading-6 text-white/55 sm:text-[15px]">
+                {stepContent[currentStep].description}
               </p>
             </div>
 
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+              <p className="font-medium text-white">{stepContent[currentStep].progress}</p>
+              <p className="text-white/45">{stepContent[currentStep].helper}</p>
+            </div>
+          </div>
+
             {currentStep === 1 ? (
               <section className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <StepBadge step={1} />
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-white">
-                      Which languages are part of your current milestone?
-                    </h3>
-                    <p className="max-w-2xl text-sm leading-6 text-white/50">
-                      Start with the languages you want to practice first.
-                    </p>
-                  </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-white">
+                    Which languages are part of your current milestone?
+                  </h3>
+                  <p className="max-w-2xl text-sm leading-6 text-white/50">
+                    Start with the languages you want to practice first.
+                  </p>
                 </div>
 
                 <SearchableMultiSelect
@@ -492,16 +486,13 @@ export function OnboardingForm({
 
             {currentStep === 2 ? (
               <section className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <StepBadge step={2} />
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-white">
-                      How confident do you feel with each selected language?
-                    </h3>
-                    <p className="max-w-2xl text-sm leading-6 text-white/50">
-                      This sets the starting point for the first exercises Codora suggests.
-                    </p>
-                  </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-white">
+                    How confident do you feel with each selected language?
+                  </h3>
+                  <p className="max-w-2xl text-sm leading-6 text-white/50">
+                    This sets the starting point for the first exercises Codora suggests.
+                  </p>
                 </div>
 
                 {confidenceReady ? (
@@ -589,16 +580,13 @@ export function OnboardingForm({
 
             {currentStep === 3 ? (
               <section className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <StepBadge step={3} />
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-white">
-                      What should we focus on for {topicLabel}?
-                    </h3>
-                    <p className="max-w-2xl text-sm leading-6 text-white/50">
-                      Pick the themes you want to see in future exercises and guidance.
-                    </p>
-                  </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-white">
+                    What should we focus on for {topicLabel}?
+                  </h3>
+                  <p className="max-w-2xl text-sm leading-6 text-white/50">
+                    Pick the themes you want to see in future exercises and guidance.
+                  </p>
                 </div>
 
                 <SearchableMultiSelect
@@ -639,75 +627,10 @@ export function OnboardingForm({
                 )}
               </section>
             ) : null}
-          </div>
-
-          <aside className="border-t border-white/8 bg-black/15 px-5 py-5 sm:px-6 lg:border-l lg:border-t-0">
-            <div className="space-y-4">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
-                  Onboarding state
-                </p>
-                <p className="mt-2 text-sm leading-6 text-white/55">
-                  Review what has been selected before you move on.
-                </p>
-              </div>
-
-              <div className="space-y-3 rounded-3xl border border-white/10 bg-white/[0.03] p-4">
-                <div className="space-y-2">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/35">
-                    Languages
-                  </p>
-                  {selectedLanguages.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {selectedLanguages.map((language) => (
-                        <span
-                          key={language.id}
-                          className="inline-flex items-center rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-xs text-white/70"
-                        >
-                          {language.name}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-white/45">None yet.</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/35">
-                    Focus tags
-                  </p>
-                  {selectedTags.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {selectedTags.map((tag) => (
-                        <span
-                          key={tag.id}
-                          className="inline-flex items-center rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-xs text-white/70"
-                        >
-                          {tag.name}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-white/45">Optional.</p>
-                  )}
-                </div>
-
-                <div className="space-y-1 rounded-2xl border border-white/10 bg-black/20 px-3 py-3">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/35">
-                    Current step
-                  </p>
-                  <p className="text-sm font-medium text-white">
-                    {stepContent[currentStep].badge}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </aside>
         </div>
       </section>
 
-      <div className="flex flex-col gap-4 rounded-[2rem] border border-white/10 bg-white/[0.03] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="flex flex-col gap-4 rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-[0.28em] text-white/35">
             {currentStep === 3 ? "Ready to finish" : "Continue the wizard"}
@@ -715,7 +638,7 @@ export function OnboardingForm({
           <p className="text-sm text-white/55">
             {currentStep === 3
               ? "Your selections will be saved as your initial onboarding milestone."
-              : "Use Back and Next to move through the onboarding steps one at a time."}
+              : "Use Back and Next to move through each step without losing your selections."}
           </p>
         </div>
 

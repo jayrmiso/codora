@@ -14,6 +14,11 @@ import {
 } from "@/infrastructure/supabase/auth";
 import { AUTH_COOKIE_NAMES, SUPABASE_CONFIG_ERROR } from "@/infrastructure/supabase/config";
 import { clearAuthCookies, setAuthCookies } from "@/infrastructure/supabase/cookies";
+import {
+  getTestAuthOnboardingComplete,
+  getTestAuthSession,
+  isTestAuthToken,
+} from "@/infrastructure/supabase/test-auth";
 
 async function buildSessionState(accessToken: string, refreshToken: string) {
   const userResult = await loadSupabaseUser(accessToken);
@@ -128,6 +133,35 @@ async function buildSessionState(accessToken: string, refreshToken: string) {
 }
 
 export async function GET(request: NextRequest) {
+  const accessToken = request.cookies.get(AUTH_COOKIE_NAMES.accessToken)?.value ?? "";
+  const refreshToken = request.cookies.get(AUTH_COOKIE_NAMES.refreshToken)?.value ?? "";
+
+  if (isTestAuthToken(accessToken, refreshToken)) {
+    const session = getTestAuthSession();
+
+    return NextResponse.json({
+      ok: true,
+      data: {
+        authenticated: true,
+        user: session.user,
+        profile: {
+          id: session.user.id,
+          email: session.user.email ?? null,
+          full_name: "AI Admin",
+          avatar_url: null,
+          proficiency_level: null,
+          language_proficiency_levels: {},
+          created_at: new Date(0).toISOString(),
+          updated_at: new Date(0).toISOString(),
+        },
+        languagePreferences: [],
+        learningTagIds: [],
+        onboardingComplete: getTestAuthOnboardingComplete(request.cookies),
+        session: toSessionPayload(session),
+      },
+    });
+  }
+
   if (!isSupabaseConfigured()) {
     return NextResponse.json(
       {
@@ -137,9 +171,6 @@ export async function GET(request: NextRequest) {
       { status: 500 },
     );
   }
-
-  const accessToken = request.cookies.get(AUTH_COOKIE_NAMES.accessToken)?.value ?? "";
-  const refreshToken = request.cookies.get(AUTH_COOKIE_NAMES.refreshToken)?.value ?? "";
 
   if (!accessToken && !refreshToken) {
     return NextResponse.json({

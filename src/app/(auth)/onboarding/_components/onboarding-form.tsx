@@ -6,13 +6,17 @@ import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 
 import { SearchableMultiSelect } from "@/components/searchable-multi-select";
-import { mergeLanguagePreferences } from "../_lib/merge-language-preferences.mjs";
-import { summarizeSelectionNames } from "../_lib/selection-summary.mjs";
 import type {
   LearningTagRow,
   ProgrammingLanguageRow,
   SelectedLanguagePreference,
 } from "@/infrastructure/supabase/auth";
+
+import {
+  buildOnboardingSubmission,
+  isConfidenceStepReady,
+} from "../_lib/onboarding-flow.mjs";
+import { summarizeSelectionNames } from "../_lib/selection-summary.mjs";
 
 const proficiencyLevels = [
   {
@@ -67,6 +71,14 @@ function TagIcon({ label }: { label: string }) {
   );
 }
 
+function StepBadge({ step }: { step: number }) {
+  return (
+    <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-sky-300/20 bg-sky-400/12 text-sm font-semibold text-sky-100">
+      {step}
+    </span>
+  );
+}
+
 export function OnboardingForm({
   programmingLanguages,
   learningTags,
@@ -82,16 +94,21 @@ export function OnboardingForm({
   );
   const [languageDrafts, setLanguageDrafts] = useState<Record<string, string>>(
     () =>
-      selectedLanguagePreferences.reduce<Record<string, string>>((accumulator, item) => {
-        const available = programmingLanguages.find((language) => language.id === item.languageId);
+      selectedLanguagePreferences.reduce<Record<string, string>>(
+        (accumulator, item) => {
+          const available = programmingLanguages.find(
+            (language) => language.id === item.languageId,
+          );
 
-        if (!available) {
+          if (!available) {
+            return accumulator;
+          }
+
+          accumulator[item.languageId] = item.proficiencyLevel;
           return accumulator;
-        }
-
-        accumulator[item.languageId] = item.proficiencyLevel;
-        return accumulator;
-      }, {}),
+        },
+        {},
+      ),
   );
   const [selectedTagIds, setSelectedTagIds] = useState<Set<string>>(
     () => new Set(selectedLearningTagIds),
@@ -103,7 +120,8 @@ export function OnboardingForm({
   );
 
   const selectedLanguages = useMemo(
-    () => availableLanguages.filter((language) => selectedLanguageIds.has(language.id)),
+    () =>
+      availableLanguages.filter((language) => selectedLanguageIds.has(language.id)),
     [availableLanguages, selectedLanguageIds],
   );
 
@@ -170,12 +188,16 @@ export function OnboardingForm({
   );
 
   const selectedLanguageSummary = useMemo(
-    () => summarizeSelectionNames(selectedLanguages.map((language) => language.name), "Select languages", 2),
+    () =>
+      summarizeSelectionNames(
+        selectedLanguages.map((language) => language.name),
+        "Select languages",
+        2,
+      ),
     [selectedLanguages],
   );
 
-  const topicLabel =
-    selectedLanguages[0]?.name ?? "selected languages";
+  const topicLabel = selectedLanguages[0]?.name ?? "selected languages";
 
   const tagPickerItems = useMemo(
     () =>
@@ -190,9 +212,16 @@ export function OnboardingForm({
   );
 
   const selectedTagSummary = useMemo(
-    () => summarizeSelectionNames(selectedTags.map((tag) => tag.name), "Select tags", 3),
+    () =>
+      summarizeSelectionNames(
+        selectedTags.map((tag) => tag.name),
+        "Select tags",
+        3,
+      ),
     [selectedTags],
   );
+
+  const confidenceReady = isConfidenceStepReady(selectedLanguages.length);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -204,15 +233,12 @@ export function OnboardingForm({
     setPending(true);
     setError(null);
 
-    const languagePreferences = mergeLanguagePreferences({
-      existingPreferences: selectedLanguagePreferences,
-      selectedPreferences: selectedLanguages.map((language) => ({
-        languageId: language.id,
-        languageSlug: language.slug,
-        languageName: language.name,
-        proficiencyLevel: languageDrafts[language.id] ?? proficiencyLevels[0].value,
-      })),
-      editableLanguageIds: availableLanguages.map((language) => language.id),
+    const { language_preferences, learning_tag_ids } = buildOnboardingSubmission({
+      selectedLanguagePreferences,
+      selectedLanguages,
+      languageDrafts,
+      editableLanguages: availableLanguages,
+      selectedTagIds,
     });
 
     try {
@@ -222,8 +248,8 @@ export function OnboardingForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          language_preferences: languagePreferences,
-          learning_tag_ids: Array.from(selectedTagIds),
+          language_preferences,
+          learning_tag_ids,
         }),
       });
 
@@ -258,19 +284,39 @@ export function OnboardingForm({
         </p>
       ) : null}
 
-      <div className="grid gap-4 xl:grid-cols-[1.02fr_0.98fr]">
-        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-white/35">
-                Languages
-              </p>
-              <h3 className="mt-2 text-base font-medium text-white">Programming languages</h3>
+      <div className="space-y-4">
+        <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))]">
+          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-5 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex gap-4">
+              <StepBadge step={1} />
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.28em] text-white/35">
+                  Step 1
+                </p>
+                <div>
+                  <h3 className="text-lg font-medium text-white">
+                    Which languages are part of your current milestone?
+                  </h3>
+                  <p className="mt-1 max-w-2xl text-sm leading-6 text-white/50">
+                    Choose the languages you want to practice first. You can set
+                    confidence levels in the next step.
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-white/45">{selectedLanguages.length} selected</p>
+
+            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/55">
+              <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
+                Progress
+              </p>
+              <p className="mt-2 font-medium text-white">
+                {selectedLanguages.length} language
+                {selectedLanguages.length === 1 ? "" : "s"} selected
+              </p>
+            </div>
           </div>
 
-          <div className="mt-4">
+          <div className="px-5 py-5 sm:px-6">
             <SearchableMultiSelect
               label="Language picker"
               summary={selectedLanguageSummary}
@@ -282,14 +328,48 @@ export function OnboardingForm({
               searchLabel="Search languages"
               onToggle={toggleLanguage}
             />
+          </div>
+        </section>
 
-            {selectedLanguages.length > 0 ? (
-              <div className="mt-4 rounded-3xl border border-white/10 bg-black/15">
+        <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))]">
+          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-5 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex gap-4">
+              <StepBadge step={2} />
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.28em] text-white/35">
+                  Step 2
+                </p>
+                <div>
+                  <h3 className="text-lg font-medium text-white">
+                    How confident do you feel with each language?
+                  </h3>
+                  <p className="mt-1 max-w-2xl text-sm leading-6 text-white/50">
+                    Use these levels to tune practice difficulty and recommendations.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/55">
+              <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
+                Milestone
+              </p>
+              <p className="mt-2 font-medium text-white">
+                {confidenceReady
+                  ? "Set your starting point"
+                  : "Select languages first"}
+              </p>
+            </div>
+          </div>
+
+          <div className="px-5 py-5 sm:px-6">
+            {confidenceReady ? (
+              <div className="rounded-3xl border border-white/10 bg-black/15">
                 <div className="max-h-80 overflow-y-auto">
                   {selectedLanguages.map((language) => (
                     <div
                       key={language.id}
-                      className="flex flex-col gap-3 border-b border-white/8 px-4 py-3 last:border-b-0 lg:flex-row lg:items-center lg:justify-between"
+                      className="flex flex-col gap-3 border-b border-white/8 px-4 py-4 last:border-b-0 lg:flex-row lg:items-center lg:justify-between"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <LanguageIcon
@@ -301,7 +381,7 @@ export function OnboardingForm({
                           <p className="truncate text-sm font-medium text-white">
                             {language.name}
                           </p>
-                          <p className="mt-0.5 truncate text-xs text-white/45">
+                          <p className="mt-0.5 text-xs leading-5 text-white/45">
                             {language.description ??
                               "Choose how confident you feel with this language."}
                           </p>
@@ -317,7 +397,10 @@ export function OnboardingForm({
                           <select
                             className="h-9 min-w-32 rounded-lg border border-white/10 bg-[#0c0c0c] px-3 text-sm text-white outline-none transition focus:border-white/30"
                             disabled={pending}
-                            value={languageDrafts[language.id] ?? proficiencyLevels[0].value}
+                            value={
+                              languageDrafts[language.id] ??
+                              proficiencyLevels[0].value
+                            }
                             onChange={(event) =>
                               updateLanguageDraft(language.id, event.target.value)
                             }
@@ -344,24 +427,44 @@ export function OnboardingForm({
                   ))}
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <div className="rounded-3xl border border-dashed border-white/10 bg-black/15 px-5 py-8 text-sm leading-6 text-white/45">
+                Add at least one language in Step 1 to unlock confidence levels.
+              </div>
+            )}
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-white/35">
-                Learning tags
-              </p>
-              <h3 className="mt-2 text-base font-medium text-white">
-                Focus tags for {topicLabel}
-              </h3>
+        <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))]">
+          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-5 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex gap-4">
+              <StepBadge step={3} />
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.28em] text-white/35">
+                  Step 3
+                </p>
+                <div>
+                  <h3 className="text-lg font-medium text-white">
+                    What should we focus on for {topicLabel}?
+                  </h3>
+                  <p className="mt-1 max-w-2xl text-sm leading-6 text-white/50">
+                    Pick the themes you want to see in future exercises and guidance.
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-white/45">{selectedTags.length} selected</p>
+
+            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/55">
+              <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
+                Progress
+              </p>
+              <p className="mt-2 font-medium text-white">
+                {selectedTags.length} tag{selectedTags.length === 1 ? "" : "s"} selected
+              </p>
+            </div>
           </div>
 
-          <div className="mt-4">
+          <div className="px-5 py-5 sm:px-6">
             <SearchableMultiSelect
               label="Tag picker"
               summary={selectedTagSummary}
@@ -375,7 +478,7 @@ export function OnboardingForm({
             />
 
             {selectedTags.length > 0 ? (
-              <div className="mt-3 max-h-24 overflow-y-auto pr-1">
+              <div className="mt-4 max-h-24 overflow-y-auto pr-1">
                 <div className="flex flex-wrap gap-1.5">
                   {selectedTags.map((tag) => (
                     <button
@@ -398,7 +501,16 @@ export function OnboardingForm({
         </section>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+      <div className="flex flex-col gap-4 rounded-[2rem] border border-white/10 bg-white/[0.03] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="space-y-1">
+          <p className="text-xs uppercase tracking-[0.28em] text-white/35">
+            Ready to continue
+          </p>
+          <p className="text-sm text-white/55">
+            Your selections will be saved as your initial onboarding milestone.
+          </p>
+        </div>
+
         <button
           className="flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:bg-white/40"
           disabled={pending}

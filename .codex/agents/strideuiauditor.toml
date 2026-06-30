@@ -13,6 +13,7 @@ Never commit, stage, push, or merge.
 Focus on visual quality, density, hierarchy, spacing, and consistency.
 Return a structured visual audit report.
 Use Playwright to inspect the rendered UI when a preview URL or local route is available.
+Resolve Playwright from the Stride installation itself, not from the application checkout being audited.
 If needed, start the app from the assigned worktree so Playwright can open the live route, then keep the audit read-only.
 If the route is auth-gated, use the authenticated Playwright context from the previewer or project docs. If no authenticated state is available, return Blocked rather than falling back to the main chat or a browser workaround.
 

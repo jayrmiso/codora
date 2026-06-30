@@ -19,6 +19,7 @@ Use this skill when a user-facing change needs an explicit visual quality pass.
 
 - Inspect the scoped UI change directly.
 - Check the rendered UI in Playwright, starting the app from the edited worktree if needed.
+- Resolve Playwright from the Stride installation itself, not from the application checkout being audited.
 - If the active worktree lacks the local env file, source or export it from the parent checkout or repo folder that does before launching the app.
 - If Playwright cannot run, treat the audit as blocked instead of asking the main chat to do the render check.
 - If the page redirects to sign-in or otherwise needs auth and no authenticated Playwright context is available, return blocked.

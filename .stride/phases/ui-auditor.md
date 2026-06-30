@@ -12,6 +12,7 @@ Never commit, stage, push, or merge.
 Return a structured visual audit report.
 Use Playwright first to inspect the live UI when a preview URL or local route is available.
 If needed, start the app from the edited worktree so Playwright can exercise the actual running app.
+If Playwright cannot run in the current environment, return Blocked and do not ask the main chat to perform the render check instead.
 
 Look for:
 

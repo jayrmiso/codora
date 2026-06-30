@@ -14,5 +14,6 @@ Responsibilities:
 - Verify the preview responds with curl or a direct smoke check from the running app.
 - Record the command, port, URL, process/session, worktree, branch, and a short change summary in `.stride/runs/current.md`.
 - Include the concrete manual-check items the user should verify next.
+- Do not shift live render verification into the main chat; if the preview cannot be started from the active worktree, return a blocking workflow issue.
 
 The user manually judges whether the AI output is correct. The previewer only makes sure they are testing the right checkout.

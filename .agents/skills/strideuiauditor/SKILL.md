@@ -18,6 +18,7 @@ Use this skill when a user-facing change needs an explicit visual quality pass.
 
 - Inspect the scoped UI change directly.
 - Check the rendered UI in Playwright, starting the app from the edited worktree if needed.
+- If Playwright cannot run, treat the audit as blocked instead of asking the main chat to do the render check.
 - Check visual hierarchy, spacing, rhythm, consistency, responsiveness, interaction clarity, and accessibility.
 - Be concrete about what looks off and what should change.
 - Return findings the builder can act on.

@@ -28,7 +28,8 @@ Use this skill when working in a repository that has Stride Workflow installed a
 - For patch and impl, spawn or use `stridebuilder` to edit inside the active worktree.
 - Once `stridebuilder` is spawned, stop editing in the main chat and use the main chat only to coordinate, verify, and hand off.
 - For patch, impl, and land, spawn or use `stridereviewer` against the scoped diff before handoff.
-- When the change is user-facing or layout-sensitive, also use `strideuiauditor` to inspect the live UI with Playwright when possible.
+- When the change is user-facing or layout-sensitive, also use `strideuiauditor` to inspect the live UI with Playwright.
+- If the visual auditor cannot run Playwright, treat that as a blocked workflow state instead of moving the render check into the main chat.
 - Keep worktree, spec, impl, review, and handoff behavior aligned with the installed Stride files.
 - Update `.stride/ledger.md` when you learn something durable.
 

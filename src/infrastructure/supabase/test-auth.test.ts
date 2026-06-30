@@ -71,3 +71,41 @@ test("test auth onboarding cookie round-trips through the response store", async
   auth.setTestAuthOnboardingComplete(response, false);
   assert.equal(response.cookies.get(auth.TEST_AUTH_ONBOARDING_COOKIE)?.value, "false");
 });
+
+test("test auth fallback taxonomy exposes the expanded language and tag catalog", async () => {
+  process.env.NODE_ENV = "development";
+  process.env.AUTH_TEST_BYPASS = "true";
+  process.env.AUTH_TEST_BYPASS_SECRET = "test-secret";
+
+  const auth = await import("./test-auth.ts");
+
+  assert.deepEqual(
+    auth.TEST_AUTH_PROGRAMMING_LANGUAGES.map((language) => language.slug),
+    ["python", "javascript", "typescript", "java", "go", "ruby", "rust", "csharp"],
+  );
+  assert.equal(
+    auth.TEST_AUTH_PROGRAMMING_LANGUAGES.find((language) => language.slug === "python")
+      ?.description,
+    "A general-purpose language used across scripting, backend work, and automation.",
+  );
+  assert.deepEqual(
+    auth.TEST_AUTH_LEARNING_TAGS.map((tag) => tag.slug),
+    [
+      "variables",
+      "conditionals",
+      "loops",
+      "functions",
+      "arrays",
+      "strings",
+      "hash-maps",
+      "sets",
+      "sorting",
+      "search",
+      "recursion",
+      "stacks",
+      "queues",
+      "trees",
+      "graphs",
+    ],
+  );
+});

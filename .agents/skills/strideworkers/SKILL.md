@@ -25,3 +25,7 @@ Use this skill when deciding how much worker support a task deserves.
 - `default`: main chat orchestrates, one `stridebuilder` edits, and one `stridereviewer` checks the diff
 - `balance`: default plus `stridelead` recon or one extra probe/debug helper when needed; may split the scope across more than one builder/reviewer pair if that is cleaner; add `strideuiauditor` for user-facing visual checks that should run against the live app in Playwright
 - `heavy`: `stridelead` recon plus multiple builders, multiple reviewers, visual audit support, and extra probe/debug support for broad or risky work; use Playwright-backed UI auditing when the change is visual
+
+## Principle
+
+- If splitting the scope across more than one builder keeps the main chat out of the write path, prefer that over having the orchestrator touch files.

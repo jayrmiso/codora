@@ -1,4 +1,13 @@
 Status: Worktree ready
+Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-step-flow
+Active branch: stride/onboarding-step-flow
+Worker mode used: pending
+Reviewer worker result: pending
+Next command: continue the current Stride phase from the active worktree
+
+---
+
+Status: Worktree ready
 Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/remove-badges-combine-tags-resize-card
 Active branch: stride/remove-badges-combine-tags-resize-card
 Worker mode used: pending

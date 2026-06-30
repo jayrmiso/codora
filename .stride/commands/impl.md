@@ -32,6 +32,7 @@ workers(default: stridebuilder + stridereviewer) -> worktree -> load spec -> lig
 - Spawn or use the `stridebuilder` worker to make the implementation changes inside the active worktree.
 - If the builder result is incomplete or stalls, do not take over the edit in the main chat. Either ask the builder for a blocking report or spawn a fresh builder worker for the same scope if the chosen mode justifies it.
 - If the builder worker is unavailable, stop and report that Stride cannot continue the default impl flow. Do not silently edit in the main chat.
+- Once a builder owns the scope, the main chat must not make follow-up code edits, preview tweaks, or bug fixes for that scope. If more implementation work is needed, hand it to another builder worker instead of reclaiming the write path.
 - Run the most relevant checks.
 - If the change is visual or user-facing, spawn or use `strideuiauditor` before reviewer and preview so the UI quality is checked separately from behavior, using Playwright against the live app when possible.
 - If the change is visual or user-facing and Playwright cannot run, stop and report a blocked workflow instead of moving that render check into the main chat.
@@ -42,4 +43,5 @@ workers(default: stridebuilder + stridereviewer) -> worktree -> load spec -> lig
 - For user-facing work, start the preview from the active worktree and verify the URL responds.
 - Write `.stride/runs/current.md` with the manual-test URL, what changed, what to check next, passed commands, and next command.
 - Do not perform the final render check in the main chat; that belongs to the previewer and ui-auditor flow.
+- The final response must tell the user what changed, what to verify in the running app, and the next command.
 - Update `.stride/ledger.md` with durable facts.

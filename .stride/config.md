@@ -14,11 +14,14 @@ Primary commands: `$stride spec`, `$stride impl`, and `$stride land`
 - Use `stridereviewer` as the default reviewer worker for patch, impl, and land.
 - Use `stridelead` as the read-only recon worker when extra repo facts are needed.
 - Use `strideuiauditor` as the read-only visual auditor for user-facing or layout-sensitive work; it should inspect the live UI with Playwright when a preview URL or local route exists.
+- The main chat is the brain: it coordinates, decides, and hands off. It does not keep editing once a worker owns the scope.
 - Once `stridebuilder` is spawned, the orchestrator stops editing and becomes coordination-only for that scoped change.
 - If the orchestrator writes files after spawning `stridebuilder` for the same scope, treat that as a workflow violation and restart the scope through the builder worker.
 - If the work naturally splits, use multiple builder or reviewer workers rather than having the main chat take over the write or review path.
+- Prefer multiple builders over main-chat edits when that keeps the orchestrator out of the implementation path.
 - If the work is visual, run `strideuiauditor` before preview and handoff so the rendered UI is checked separately from source review.
 - If the visual auditor cannot run Playwright against the live UI, stop and report a blocking workflow issue rather than moving that check into the main chat.
+- If the target route is auth-gated, the previewer must preserve an authenticated Playwright context or the visual audit is blocked.
 - Announce each active phase before doing it so the user can see the flow.
 - Use `node .stride/bin/stride-workflow.mjs ...` as the repo-local Stride runner.
 - If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw `git worktree` commands.

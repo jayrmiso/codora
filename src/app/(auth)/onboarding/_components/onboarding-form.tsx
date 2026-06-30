@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, LoaderCircle, X } from "lucide-react";
+import { ArrowRight, ChevronDown, LoaderCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
@@ -190,18 +190,16 @@ export function OnboardingForm({
     [selectedLanguages],
   );
 
-  const topicLabel = selectedLanguages[0]?.name ?? "selected languages";
-
   const tagPickerItems = useMemo(
     () =>
       learningTags.map((tag) => ({
         id: tag.id,
         label: tag.name,
         description: tag.description ?? "Focus area for future practice.",
-        badge: topicLabel,
+        badge: "All languages",
         leading: <TagIcon label={tag.name} />,
       })),
-    [learningTags, topicLabel],
+    [learningTags],
   );
 
   const selectedTagSummary = useMemo(
@@ -526,23 +524,30 @@ export function OnboardingForm({
                                 Level
                               </span>
                               <span className="sr-only">{`${language.name} proficiency level`}</span>
-                              <select
-                                className="h-9 min-w-32 rounded-lg border border-white/10 bg-[#0c0c0c] px-3 text-sm text-white outline-none transition focus:border-white/30"
-                                disabled={pending}
-                                value={
-                                  languageDrafts[language.id] ??
-                                  proficiencyLevels[0].value
-                                }
-                                onChange={(event) =>
-                                  updateLanguageDraft(language.id, event.target.value)
-                                }
-                              >
-                                {proficiencyLevels.map((level) => (
-                                  <option key={level.value} value={level.value}>
-                                    {level.label}
-                                  </option>
-                                ))}
-                              </select>
+                              <span className="relative">
+                                <select
+                                  className="h-9 min-w-32 appearance-none rounded-lg border border-white/10 bg-[#0c0c0c] px-3 pr-9 text-sm text-white outline-none transition focus:border-white/30"
+                                  disabled={pending}
+                                  value={
+                                    languageDrafts[language.id] ??
+                                    proficiencyLevels[0].value
+                                  }
+                                  onChange={(event) =>
+                                    updateLanguageDraft(language.id, event.target.value)
+                                  }
+                                >
+                                  {proficiencyLevels.map((level) => (
+                                    <option key={level.value} value={level.value}>
+                                      {level.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                <ChevronDown
+                                  size={14}
+                                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/45"
+                                  aria-hidden="true"
+                                />
+                              </span>
                             </label>
 
                             <button

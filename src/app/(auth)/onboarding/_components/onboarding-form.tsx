@@ -37,13 +37,22 @@ type Props = {
   errorMessage: string | null;
 };
 
-function LanguageIcon({ label, className = "" }: { label: string; className?: string }) {
+function LanguageIcon({
+  label,
+  className = "",
+  ariaHidden = false,
+}: {
+  label: string;
+  className?: string;
+  ariaHidden?: boolean;
+}) {
   return (
     <span
       className={[
         "flex h-10 w-10 items-center justify-center rounded-2xl border border-sky-400/20 bg-sky-400/10 text-[11px] font-semibold tracking-[0.2em] text-sky-100",
         className,
       ].join(" ")}
+      aria-hidden={ariaHidden}
     >
       {label.slice(0, 2).toUpperCase()}
     </span>
@@ -275,22 +284,24 @@ export function OnboardingForm({
             />
 
             {selectedLanguages.length > 0 ? (
-              <div className="mt-3 max-h-28 overflow-y-auto pr-1">
-                <div className="flex flex-wrap gap-2">
+              <div className="mt-3 max-h-24 overflow-y-auto pr-1">
+                <div className="flex flex-wrap gap-1.5">
                   {selectedLanguages.map((language) => (
                     <button
                       key={language.id}
-                      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/80 transition hover:border-white/20 hover:bg-white/[0.06]"
+                      className="group inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/[0.08] px-2.5 py-1 text-[11px] font-medium text-sky-50 transition hover:border-sky-300/25 hover:bg-sky-400/[0.12]"
                       type="button"
                       disabled={pending}
                       onClick={() => toggleLanguage(language.id)}
                     >
                       <LanguageIcon
                         label={language.name}
-                        className="h-5 w-5 rounded-full text-[8px] tracking-[0.12em]"
+                        className="h-4 w-4 rounded-full border-sky-300/20 bg-sky-300/[0.12] text-[7px] tracking-[0.1em] text-sky-100"
                       />
-                      {language.name}
-                      <X size={12} />
+                      <span className="truncate">{language.name}</span>
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-black/20 text-sky-100/70 transition group-hover:text-sky-50">
+                        <X size={10} />
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -298,19 +309,26 @@ export function OnboardingForm({
             ) : null}
 
             {selectedLanguages.length > 0 ? (
-              <div className="mt-4 grid gap-3 lg:grid-cols-2">
+              <div className="mt-4 grid gap-2.5 lg:grid-cols-2">
                 {selectedLanguages.map((language) => (
                   <div
                     key={language.id}
-                    className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
+                    className="rounded-2xl border border-white/10 bg-white/[0.025] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-white">{language.name}</p>
-                        <p className="mt-1 text-xs leading-5 text-white/45">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <LanguageIcon
+                          label={language.name}
+                          className="h-8 w-8 rounded-xl text-[8px] tracking-[0.14em]"
+                          ariaHidden
+                        />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-white">{language.name}</p>
+                          <p className="mt-0.5 text-xs leading-4 text-white/45">
                           {language.description ??
                             "Choose how confident you feel with this language."}
-                        </p>
+                          </p>
+                        </div>
                       </div>
                       <button
                         className="rounded-full border border-white/10 bg-white/[0.03] p-1.5 text-white/45 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
@@ -323,10 +341,13 @@ export function OnboardingForm({
                       </button>
                     </div>
 
-                    <label className="mt-3 block">
+                    <label className="mt-3 flex items-center gap-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">
+                        Level
+                      </span>
                       <span className="sr-only">{`${language.name} proficiency level`}</span>
                       <select
-                        className="h-11 w-full rounded-xl border border-white/10 bg-[#0c0c0c] px-3 text-sm text-white outline-none transition focus:border-white/30"
+                        className="h-9 w-full rounded-lg border border-white/10 bg-[#0c0c0c] px-3 text-sm text-white outline-none transition focus:border-white/30"
                         disabled={pending}
                         value={languageDrafts[language.id] ?? proficiencyLevels[0].value}
                         onChange={(event) =>
@@ -374,21 +395,20 @@ export function OnboardingForm({
             />
 
             {selectedTags.length > 0 ? (
-              <div className="mt-3 max-h-28 overflow-y-auto pr-1">
-                <div className="flex flex-wrap gap-2">
+              <div className="mt-3 max-h-24 overflow-y-auto pr-1">
+                <div className="flex flex-wrap gap-1.5">
                   {selectedTags.map((tag) => (
                     <button
                       key={tag.id}
-                      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/80 transition hover:border-white/20 hover:bg-white/[0.06]"
+                      className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-medium text-white/80 transition hover:border-white/20 hover:bg-white/[0.08]"
                       type="button"
                       disabled={pending}
                       onClick={() => toggleTag(tag.id)}
                     >
-                      <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.22em] text-white/60">
-                        {topicLabel}
+                      <span className="truncate">{tag.name}</span>
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-black/20 text-white/55 transition group-hover:text-white/80">
+                        <X size={10} />
                       </span>
-                      {tag.name}
-                      <X size={12} />
                     </button>
                   ))}
                 </div>

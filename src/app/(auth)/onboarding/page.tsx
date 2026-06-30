@@ -25,43 +25,20 @@ export default async function OnboardingPage() {
   ]);
 
   return (
-    <div className="space-y-8">
-      <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.16),_transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.28)] sm:p-7">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl space-y-3">
-            <p className="text-xs uppercase tracking-[0.35em] text-white/35">
-              Codora
+    <div className="space-y-6">
+      <div className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.14),_transparent_48%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] px-6 py-7 shadow-[0_24px_80px_rgba(0,0,0,0.28)] sm:px-7">
+        <div className="max-w-2xl space-y-3">
+          <p className="text-xs uppercase tracking-[0.35em] text-white/35">
+            Codora
+          </p>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Finish your setup
+            </h1>
+            <p className="max-w-xl text-sm leading-6 text-white/55 sm:text-[15px]">
+              Pick your languages, set confidence, and choose a few focus
+              areas for your first milestone.
             </p>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Complete onboarding one step at a time
-              </h1>
-              <p className="max-w-xl text-sm leading-6 text-white/55 sm:text-[15px]">
-                Start with your languages, move to your milestone level, then
-                choose the topics you want Codora to emphasize.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-3 text-left text-sm text-white/70 sm:grid-cols-3 lg:min-w-[30rem]">
-            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200/75">
-                Step 1
-              </p>
-              <p className="mt-2 font-medium text-white">Pick your languages</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200/75">
-                Step 2
-              </p>
-              <p className="mt-2 font-medium text-white">Set your confidence</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200/75">
-                Step 3
-              </p>
-              <p className="mt-2 font-medium text-white">Choose focus tags</p>
-            </div>
           </div>
         </div>
       </div>

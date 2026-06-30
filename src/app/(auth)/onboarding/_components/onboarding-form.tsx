@@ -88,6 +88,7 @@ export function OnboardingForm({
 }: Props) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguageIds, setSelectedLanguageIds] = useState<Set<string>>(
     () => new Set(selectedLanguagePreferences.map((item) => item.languageId)),
@@ -223,8 +224,94 @@ export function OnboardingForm({
 
   const confidenceReady = isConfidenceStepReady(selectedLanguages.length);
 
+  const stepContent = useMemo(
+    () =>
+      ({
+        1: {
+          badge: "Step 1 of 3",
+          title: "Pick the languages in your first milestone",
+          description:
+            "Choose the languages you want Codora to focus on first. You can change this later, but the wizard starts here.",
+          progress: selectedLanguages.length
+            ? `${selectedLanguages.length} language${selectedLanguages.length === 1 ? "" : "s"} selected`
+            : "No languages selected",
+          cta: "Next",
+          helper: "Select at least one language to continue.",
+        },
+        2: {
+          badge: "Step 2 of 3",
+          title: "Set the milestone level for each language",
+          description:
+            "Tell us how confident you feel so the app can match your first exercises and recommendations.",
+          progress: confidenceReady
+            ? "Confidence ready"
+            : "Select languages first",
+          cta: "Next",
+          helper: "Add a language in step 1 before setting confidence.",
+        },
+        3: {
+          badge: "Step 3 of 3",
+          title: "Choose the focus areas you want to see next",
+          description:
+            "Pick the topics and themes you want to surface in future exercises and guidance.",
+          progress: `${selectedTags.length} tag${selectedTags.length === 1 ? "" : "s"} selected`,
+          cta: "Finish onboarding",
+          helper: "You can skip tags if you want to finish now.",
+        },
+      }) satisfies Record<
+        1 | 2 | 3,
+      {
+        badge: string;
+        title: string;
+        description: string;
+        progress: string;
+        cta: string;
+        helper: string;
+      }
+      >,
+    [confidenceReady, selectedLanguages.length, selectedTags.length],
+  );
+
+  function goToNextStep() {
+    if (currentStep === 1 && selectedLanguages.length === 0) {
+      setError("Select at least one language to continue.");
+      return;
+    }
+
+    if (currentStep === 2 && !confidenceReady) {
+      setError("Select at least one language before setting confidence.");
+      setCurrentStep(1);
+      return;
+    }
+
+    setError(null);
+    setCurrentStep((step) => {
+      if (step === 1) {
+        return 2;
+      }
+
+      return 3;
+    });
+  }
+
+  function goToPreviousStep() {
+    setError(null);
+    setCurrentStep((step) => {
+      if (step === 3) {
+        return 2;
+      }
+
+      return 1;
+    });
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (currentStep !== 3) {
+      goToNextStep();
+      return;
+    }
 
     if (pending) {
       return;
@@ -284,250 +371,396 @@ export function OnboardingForm({
         </p>
       ) : null}
 
-      <div className="space-y-4">
-        <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))]">
-          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-5 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex gap-4">
-              <StepBadge step={1} />
+      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+        <div className="border-b border-white/8 px-5 py-5 sm:px-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-[0.35em] text-white/35">
+                Codora onboarding
+              </p>
               <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.28em] text-white/35">
-                  Step 1
+                <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                  {stepContent[currentStep].title}
+                </h2>
+                <p className="max-w-2xl text-sm leading-6 text-white/55 sm:text-[15px]">
+                  {stepContent[currentStep].description}
                 </p>
-                <div>
-                  <h3 className="text-lg font-medium text-white">
-                    Which languages are part of your current milestone?
-                  </h3>
-                  <p className="mt-1 max-w-2xl text-sm leading-6 text-white/50">
-                    Choose the languages you want to practice first. You can set
-                    confidence levels in the next step.
-                  </p>
-                </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/55">
-              <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
-                Progress
-              </p>
-              <p className="mt-2 font-medium text-white">
-                {selectedLanguages.length} language
-                {selectedLanguages.length === 1 ? "" : "s"} selected
-              </p>
+            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[30rem]">
+              {[1, 2, 3].map((step) => {
+                const active = step === currentStep;
+                const completed = step < currentStep;
+
+                return (
+                  <button
+                    key={step}
+                    className={[
+                      "rounded-2xl border px-4 py-3 text-left text-sm transition",
+                      active
+                        ? "border-sky-300/30 bg-sky-400/12"
+                        : completed
+                          ? "border-white/15 bg-white/[0.04] hover:border-white/20"
+                      : "border-white/10 bg-black/20 hover:border-white/15",
+                    ].join(" ")}
+                    type="button"
+                    disabled={pending || step > currentStep}
+                    onClick={() => setCurrentStep(step as 1 | 2 | 3)}
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-200/75">
+                      Step {step}
+                    </p>
+                    <p className="mt-2 font-medium text-white">
+                      {step === 1
+                        ? "Choose languages"
+                        : step === 2
+                          ? "Set confidence"
+                          : "Pick focus tags"}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           </div>
+        </div>
 
-          <div className="px-5 py-5 sm:px-6">
-            <SearchableMultiSelect
-              label="Language picker"
-              summary={selectedLanguageSummary}
-              items={languagePickerItems}
-              selectedIds={selectedLanguageIds}
-              disabled={pending || availableLanguages.length === 0}
-              emptyMessage="No matching languages found."
-              searchPlaceholder="Search languages"
-              searchLabel="Search languages"
-              onToggle={toggleLanguage}
-            />
-          </div>
-        </section>
-
-        <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))]">
-          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-5 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex gap-4">
-              <StepBadge step={2} />
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.28em] text-white/35">
-                  Step 2
+        <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_17rem]">
+          <div className="space-y-5 px-5 py-5 sm:px-6">
+            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/60">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
+                  {stepContent[currentStep].badge}
                 </p>
-                <div>
-                  <h3 className="text-lg font-medium text-white">
-                    How confident do you feel with each language?
-                  </h3>
-                  <p className="mt-1 max-w-2xl text-sm leading-6 text-white/50">
-                    Use these levels to tune practice difficulty and recommendations.
-                  </p>
-                </div>
+                <p className="font-medium text-white">{stepContent[currentStep].progress}</p>
               </div>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/55">
-              <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
-                Milestone
-              </p>
-              <p className="mt-2 font-medium text-white">
-                {confidenceReady
-                  ? "Set your starting point"
-                  : "Select languages first"}
+              <p className="mt-2 text-xs leading-5 text-white/45">
+                {stepContent[currentStep].helper}
               </p>
             </div>
-          </div>
 
-          <div className="px-5 py-5 sm:px-6">
-            {confidenceReady ? (
-              <div className="rounded-3xl border border-white/10 bg-black/15">
-                <div className="max-h-80 overflow-y-auto">
-                  {selectedLanguages.map((language) => (
-                    <div
-                      key={language.id}
-                      className="flex flex-col gap-3 border-b border-white/8 px-4 py-4 last:border-b-0 lg:flex-row lg:items-center lg:justify-between"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <LanguageIcon
-                          label={language.name}
-                          className="h-8 w-8 rounded-xl text-[8px] tracking-[0.14em]"
-                          ariaHidden
-                        />
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-white">
-                            {language.name}
-                          </p>
-                          <p className="mt-0.5 text-xs leading-5 text-white/45">
-                            {language.description ??
-                              "Choose how confident you feel with this language."}
-                          </p>
+            {currentStep === 1 ? (
+              <section className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <StepBadge step={1} />
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-white">
+                      Which languages are part of your current milestone?
+                    </h3>
+                    <p className="max-w-2xl text-sm leading-6 text-white/50">
+                      Start with the languages you want to practice first.
+                    </p>
+                  </div>
+                </div>
+
+                <SearchableMultiSelect
+                  label="Language picker"
+                  summary={selectedLanguageSummary}
+                  items={languagePickerItems}
+                  selectedIds={selectedLanguageIds}
+                  disabled={pending || availableLanguages.length === 0}
+                  emptyMessage="No matching languages found."
+                  searchPlaceholder="Search languages"
+                  searchLabel="Search languages"
+                  onToggle={toggleLanguage}
+                />
+
+                <div className="flex flex-wrap gap-2">
+                  {selectedLanguages.length > 0 ? (
+                    selectedLanguages.map((language) => (
+                      <button
+                        key={language.id}
+                        className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs font-medium text-white/80 transition hover:border-white/20 hover:bg-white/[0.08]"
+                        type="button"
+                        disabled={pending}
+                        onClick={() => toggleLanguage(language.id)}
+                      >
+                        <span className="truncate">{language.name}</span>
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-black/20 text-white/55 transition group-hover:text-white/80">
+                          <X size={10} />
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="text-sm text-white/45">
+                      Pick at least one language to unlock the next step.
+                    </p>
+                  )}
+                </div>
+              </section>
+            ) : null}
+
+            {currentStep === 2 ? (
+              <section className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <StepBadge step={2} />
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-white">
+                      How confident do you feel with each selected language?
+                    </h3>
+                    <p className="max-w-2xl text-sm leading-6 text-white/50">
+                      This sets the starting point for the first exercises Codora suggests.
+                    </p>
+                  </div>
+                </div>
+
+                {confidenceReady ? (
+                  <div className="rounded-3xl border border-white/10 bg-black/15">
+                    <div className="max-h-80 overflow-y-auto">
+                      {selectedLanguages.map((language) => (
+                        <div
+                          key={language.id}
+                          className="flex flex-col gap-3 border-b border-white/8 px-4 py-4 last:border-b-0 lg:flex-row lg:items-center lg:justify-between"
+                        >
+                          <div className="flex min-w-0 items-center gap-3">
+                            <LanguageIcon
+                              label={language.name}
+                              className="h-8 w-8 rounded-xl text-[8px] tracking-[0.14em]"
+                              ariaHidden
+                            />
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium text-white">
+                                {language.name}
+                              </p>
+                              <p className="mt-0.5 text-xs leading-5 text-white/45">
+                                {language.description ??
+                                  "Choose how confident you feel with this language."}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 lg:shrink-0">
+                            <label className="flex items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.025] px-3 py-2">
+                              <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">
+                                Level
+                              </span>
+                              <span className="sr-only">{`${language.name} proficiency level`}</span>
+                              <select
+                                className="h-9 min-w-32 rounded-lg border border-white/10 bg-[#0c0c0c] px-3 text-sm text-white outline-none transition focus:border-white/30"
+                                disabled={pending}
+                                value={
+                                  languageDrafts[language.id] ??
+                                  proficiencyLevels[0].value
+                                }
+                                onChange={(event) =>
+                                  updateLanguageDraft(language.id, event.target.value)
+                                }
+                              >
+                                {proficiencyLevels.map((level) => (
+                                  <option key={level.value} value={level.value}>
+                                    {level.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+
+                            <button
+                              className="rounded-full border border-white/10 bg-white/[0.03] p-2 text-white/45 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+                              type="button"
+                              disabled={pending}
+                              onClick={() => toggleLanguage(language.id)}
+                              aria-label={`Remove ${language.name}`}
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-3xl border border-dashed border-white/10 bg-black/15 px-5 py-8 text-sm leading-6 text-white/45">
+                    Add at least one language in step 1 to unlock confidence levels.
+                  </div>
+                )}
 
-                      <div className="flex items-center gap-2 lg:shrink-0">
-                        <label className="flex items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.025] px-3 py-2">
-                          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">
-                            Level
-                          </span>
-                          <span className="sr-only">{`${language.name} proficiency level`}</span>
-                          <select
-                            className="h-9 min-w-32 rounded-lg border border-white/10 bg-[#0c0c0c] px-3 text-sm text-white outline-none transition focus:border-white/30"
-                            disabled={pending}
-                            value={
-                              languageDrafts[language.id] ??
-                              proficiencyLevels[0].value
-                            }
-                            onChange={(event) =>
-                              updateLanguageDraft(language.id, event.target.value)
-                            }
-                          >
-                            {proficiencyLevels.map((level) => (
-                              <option key={level.value} value={level.value}>
-                                {level.label}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
+                <div className="flex flex-wrap gap-2">
+                  {selectedLanguages.map((language) => (
+                    <span
+                      key={language.id}
+                      className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/70"
+                    >
+                      {language.name}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            ) : null}
 
+            {currentStep === 3 ? (
+              <section className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <StepBadge step={3} />
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-white">
+                      What should we focus on for {topicLabel}?
+                    </h3>
+                    <p className="max-w-2xl text-sm leading-6 text-white/50">
+                      Pick the themes you want to see in future exercises and guidance.
+                    </p>
+                  </div>
+                </div>
+
+                <SearchableMultiSelect
+                  label="Tag picker"
+                  summary={selectedTagSummary}
+                  items={tagPickerItems}
+                  selectedIds={selectedTagIds}
+                  disabled={pending}
+                  emptyMessage="No matching tags found."
+                  searchPlaceholder="Search tags"
+                  searchLabel="Search tags"
+                  onToggle={toggleTag}
+                />
+
+                {selectedTags.length > 0 ? (
+                  <div className="max-h-24 overflow-y-auto pr-1">
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedTags.map((tag) => (
                         <button
-                          className="rounded-full border border-white/10 bg-white/[0.03] p-2 text-white/45 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+                          key={tag.id}
+                          className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-medium text-white/80 transition hover:border-white/20 hover:bg-white/[0.08]"
                           type="button"
                           disabled={pending}
-                          onClick={() => toggleLanguage(language.id)}
-                          aria-label={`Remove ${language.name}`}
+                          onClick={() => toggleTag(tag.id)}
                         >
-                          <X size={12} />
+                          <span className="truncate">{tag.name}</span>
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-black/20 text-white/55 transition group-hover:text-white/80">
+                            <X size={10} />
+                          </span>
                         </button>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-3xl border border-dashed border-white/10 bg-black/15 px-5 py-8 text-sm leading-6 text-white/45">
-                Add at least one language in Step 1 to unlock confidence levels.
-              </div>
-            )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-white/45">
+                    No tags selected. You can finish onboarding now or add focus areas.
+                  </p>
+                )}
+              </section>
+            ) : null}
           </div>
-        </section>
 
-        <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))]">
-          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-5 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex gap-4">
-              <StepBadge step={3} />
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.28em] text-white/35">
-                  Step 3
+          <aside className="border-t border-white/8 bg-black/15 px-5 py-5 sm:px-6 lg:border-l lg:border-t-0">
+            <div className="space-y-4">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
+                  Onboarding state
                 </p>
-                <div>
-                  <h3 className="text-lg font-medium text-white">
-                    What should we focus on for {topicLabel}?
-                  </h3>
-                  <p className="mt-1 max-w-2xl text-sm leading-6 text-white/50">
-                    Pick the themes you want to see in future exercises and guidance.
+                <p className="mt-2 text-sm leading-6 text-white/55">
+                  Review what has been selected before you move on.
+                </p>
+              </div>
+
+              <div className="space-y-3 rounded-3xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="space-y-2">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/35">
+                    Languages
+                  </p>
+                  {selectedLanguages.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedLanguages.map((language) => (
+                        <span
+                          key={language.id}
+                          className="inline-flex items-center rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-xs text-white/70"
+                        >
+                          {language.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-white/45">None yet.</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/35">
+                    Focus tags
+                  </p>
+                  {selectedTags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedTags.map((tag) => (
+                        <span
+                          key={tag.id}
+                          className="inline-flex items-center rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-xs text-white/70"
+                        >
+                          {tag.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-white/45">Optional.</p>
+                  )}
+                </div>
+
+                <div className="space-y-1 rounded-2xl border border-white/10 bg-black/20 px-3 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/35">
+                    Current step
+                  </p>
+                  <p className="text-sm font-medium text-white">
+                    {stepContent[currentStep].badge}
                   </p>
                 </div>
               </div>
             </div>
-
-            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/55">
-              <p className="text-[11px] uppercase tracking-[0.24em] text-white/35">
-                Progress
-              </p>
-              <p className="mt-2 font-medium text-white">
-                {selectedTags.length} tag{selectedTags.length === 1 ? "" : "s"} selected
-              </p>
-            </div>
-          </div>
-
-          <div className="px-5 py-5 sm:px-6">
-            <SearchableMultiSelect
-              label="Tag picker"
-              summary={selectedTagSummary}
-              items={tagPickerItems}
-              selectedIds={selectedTagIds}
-              disabled={pending}
-              emptyMessage="No matching tags found."
-              searchPlaceholder="Search tags"
-              searchLabel="Search tags"
-              onToggle={toggleTag}
-            />
-
-            {selectedTags.length > 0 ? (
-              <div className="mt-4 max-h-24 overflow-y-auto pr-1">
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedTags.map((tag) => (
-                    <button
-                      key={tag.id}
-                      className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-medium text-white/80 transition hover:border-white/20 hover:bg-white/[0.08]"
-                      type="button"
-                      disabled={pending}
-                      onClick={() => toggleTag(tag.id)}
-                    >
-                      <span className="truncate">{tag.name}</span>
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-black/20 text-white/55 transition group-hover:text-white/80">
-                        <X size={10} />
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </section>
-      </div>
+          </aside>
+        </div>
+      </section>
 
       <div className="flex flex-col gap-4 rounded-[2rem] border border-white/10 bg-white/[0.03] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-[0.28em] text-white/35">
-            Ready to continue
+            {currentStep === 3 ? "Ready to finish" : "Continue the wizard"}
           </p>
           <p className="text-sm text-white/55">
-            Your selections will be saved as your initial onboarding milestone.
+            {currentStep === 3
+              ? "Your selections will be saved as your initial onboarding milestone."
+              : "Use Back and Next to move through the onboarding steps one at a time."}
           </p>
         </div>
 
-        <button
-          className="flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:bg-white/40"
-          disabled={pending}
-          type="submit"
-        >
-          {pending ? (
-            <>
-              <LoaderCircle size={16} className="animate-spin" />
-              Saving
-            </>
-          ) : (
-            <>
-              Continue
+        <div className="flex flex-col gap-3 sm:flex-row">
+          {currentStep > 1 ? (
+            <button
+              className="flex h-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-5 text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:bg-white/[0.03] disabled:text-white/35"
+              disabled={pending}
+              type="button"
+              onClick={goToPreviousStep}
+            >
+              Back
+            </button>
+          ) : null}
+
+          {currentStep < 3 ? (
+            <button
+              className="flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:bg-white/40"
+              disabled={pending || (currentStep === 1 && selectedLanguages.length === 0)}
+              type="button"
+              onClick={goToNextStep}
+            >
+              {stepContent[currentStep].cta}
               <ArrowRight size={16} />
-            </>
+            </button>
+          ) : (
+            <button
+              className="flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:bg-white/40"
+              disabled={pending}
+              type="submit"
+            >
+              {pending ? (
+                <>
+                  <LoaderCircle size={16} className="animate-spin" />
+                  Saving
+                </>
+              ) : (
+                <>
+                  {stepContent[currentStep].cta}
+                  <ArrowRight size={16} />
+                </>
+              )}
+            </button>
           )}
-        </button>
+        </div>
       </div>
     </form>
   );

@@ -19,15 +19,18 @@ Before substantial work:
 - If the Stride runner is missing or fails, stop and ask the user to update Stride. Do not fall back to raw git worktree commands.
 - Do not edit application files until the Stride runner's `worktree assert` passes for the active Stride worktree.
 - Treat the main chat as orchestrator for patch, impl, and land.
+- The main chat is the brain, not the hands: it coordinates and hands off, but does not keep editing once a worker owns the scope.
 - If the main chat has spawned `stridebuilder` for a scoped change, it must stop writing files for that scope and only coordinate, verify, and hand off.
 - Spawn or use stridebuilder for patch and impl implementation work.
 - Use stridelead as the read-only recon worker when extra repo facts are needed.
 - Use strideuiauditor as the read-only visual auditor for user-facing or layout-sensitive work before preview and handoff. It should inspect the live UI with Playwright when a route is available.
 - Spawn or use stridereviewer during patch, impl, and land before handoff.
-- If a builder or reviewer result stalls, do not take over the edit or review in the main chat; either ask for a blocking report or spawn another worker when the chosen mode justifies it.
+- If the work naturally splits, prefer multiple builders or reviewers over having the main chat touch files, but never use a second worker as a replacement for an active worker on the same slice.
+- If a builder or reviewer result stalls, keep waiting for that worker unless there is a separate independent slice that can be assigned elsewhere; do not take over the edit or review in the main chat.
 - Use .stride/runs/current.md for the latest manual-test handoff when it exists.
 - Use .stride/ledger.md for durable project facts.
 - Update the ledger when a discovery should survive future turns.
+- Do not finish patch, impl, or land without a handoff card that says what changed, what to verify in the running app, and the next command.
 
 Primary loop: $stride spec -> approval -> $stride impl -> ui audit if visual -> manual test -> $stride land.
 Small no-spec changes can use $stride patch.

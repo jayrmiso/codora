@@ -24,7 +24,9 @@ Rules:
 - Confirm the active worktree and branch with the Stride runner's `worktree status`.
 - Run the Stride runner's `worktree assert <active-worktree-path>` before committing or pushing; stop if it fails.
 - Announce each phase before starting it: `workers`, `verify run`, `reviewer`, `commit`, `push`, `PR`, `cleanup`.
+- The main chat is not allowed to restart implementation during land. If a fix is needed after review, hand it back to a builder worker and return to land only after the scope is complete.
 - Spawn or use the `stridereviewer` worker on the final scoped diff before committing. If unavailable, stop and report that Stride cannot complete the default land flow.
+- If any worker is still active on the same scope, keep waiting for that worker to finish instead of spinning up a replacement on the same work.
 - Treat any `[blocking]` reviewer finding as mandatory and do not commit until it is fixed or the user explicitly accepts the risk.
 - Derive the commit subject from the approved spec and handoff, using the `.stride/specs/current.md` and `.stride/runs/current.md` context.
 - Prefer a conventional commit subject such as `feat: ...`, `fix: ...`, `docs: ...`, or `chore: ...`.

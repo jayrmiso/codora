@@ -25,65 +25,29 @@ Next command: open `http://127.0.0.1:3000/onboarding` in a browser session and v
 - Confirm Step 1 only shows languages, Next advances to the confidence card, Back preserves selections, and Finish still routes to `/home`.
 
 ---
-
-Status: Worktree ready
-Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-step-flow
-Active branch: stride/onboarding-step-flow
-Worker mode used: default
-Reviewer worker result: not run in this session; no callable reviewer worker tool was available
-Next command: manually verify dev-only bypass sign-in, onboarding completion, session state, and sign-out in the running app
-
----
-
-Status: Worktree ready
-Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-step-flow
-Active branch: stride/onboarding-step-flow
-Worker mode used: default
-Reviewer worker result: approved
-Next command: perform manual visual verification when an authenticated Playwright-capable browser backend is available, then continue with handoff
-
----
-
-Status: Worktree ready
-Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/remove-badges-combine-tags-resize-card
-Active branch: stride/remove-badges-combine-tags-resize-card
-Worker mode used: pending
-Reviewer worker result: pending
-Next command: continue the current Stride phase from the active worktree
-
----
-
-Status: Worktree ready
-Active worktree path: /Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-density-fix
-Active branch: stride/onboarding-density-fix
-Worker mode used: pending
-Reviewer worker result: pending
-Next command: continue the current Stride phase from the active worktree
-
----
-
 Status: Landed
 
 # Current Run
 
 ## Active Worktree
 
-- Path: `/Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-multi-select-style`
-- Branch: `stride/onboarding-multi-select-style`
+- Path: `/Users/kai/Documents/dev/codora/.stride/worktrees/onboarding-step-flow`
+- Branch: `stride/onboarding-step-flow`
 - Preview URL: `http://127.0.0.1:3000/onboarding`
 
 ## What Changed
 
-- Polished the onboarding multi-select selected states so multiple chosen languages and tags read more compactly.
-- Reduced visual weight in the selected language chips and cards.
-- Hid decorative initials from assistive tech.
+- Reworked onboarding into a three-step milestone flow.
+- Added a dev-only auth bypass for the test account `arjayramiso@gmail.com`.
+- Tightened onboarding payload validation and preserved the selected-language/tag experience.
 
 ## Verification
 
-- `npx eslint 'src/app/(auth)/onboarding/_components/onboarding-form.tsx'`
-- Manual check in Chrome at `localhost:3000/onboarding` with multiple languages selected
+- `npx eslint 'src/app/(auth)/onboarding/_components/onboarding-form.tsx' 'src/app/(auth)/onboarding/page.tsx' 'src/app/api/auth/_lib.ts' 'src/app/api/auth/session/route.ts' 'src/app/api/auth/sign-in/route.ts' 'src/app/api/auth/sign-out/route.ts' 'src/app/api/auth/sign-up/route.ts' 'src/app/api/onboarding/complete/route.ts' 'src/infrastructure/supabase/auth.ts' 'src/infrastructure/supabase/cookies.ts' 'src/infrastructure/supabase/test-auth.ts' 'src/infrastructure/supabase/test-auth.test.ts' 'src/app/(auth)/onboarding/_lib/onboarding-flow.mjs' 'src/app/(auth)/onboarding/_lib/onboarding-flow.test.mjs'`
+- `node --test --experimental-strip-types 'src/infrastructure/supabase/test-auth.test.ts' 'src/app/(auth)/onboarding/_lib/onboarding-flow.test.mjs'`
+- Manual review of the resulting onboarding screens and auth bypass flow
 
 ## Landed
 
-- Commit: `09357d2 fix(onboarding): polish multi-select selected states`
-- PR: `https://github.com/jayrmiso/codora/pull/5`
+- Commit: `9273013 feat(onboarding): add milestone flow and dev auth bypass`
+- Root landing commit: `e56117e chore: land onboarding step flow`

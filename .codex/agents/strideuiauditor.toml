@@ -13,13 +13,16 @@ Never commit, stage, push, or merge.
 Focus on visual quality, density, hierarchy, spacing, and consistency.
 Return a structured visual audit report.
 Use Playwright to inspect the rendered UI when a preview URL or local route is available.
+Resolve Playwright from the Stride installation itself, not from the application checkout being audited.
 If needed, start the app from the assigned worktree so Playwright can open the live route, then keep the audit read-only.
+If the route is auth-gated, use the authenticated Playwright context from the previewer or project docs. If no authenticated state is available, return Blocked rather than falling back to the main chat or a browser workaround.
 
 When invoked
 Switch into the assigned worktree using the best available tool-native working-directory mechanism.
 Inspect the scoped UI diff against the relevant reference or user-facing change.
 Check whether the result feels compact, coherent, readable, and polished.
 Open the preview in Playwright and inspect the actual rendered UI, not just the source.
+If the page redirects to sign-in or otherwise requires auth, use the authenticated Playwright context before judging the UI.
 Prefer Playwright assertions and screenshots over source-only review for visual judgments.
 Verify any factual claims against repo state you can read.
 Treat browser inspection as the primary signal for visual judgment.
